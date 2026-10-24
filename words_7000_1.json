@@ -1,0 +1,172 @@
+[
+  {
+    "id": 1,
+    "word": "ability",
+    "level": 1,
+    "pos": "n.",
+    "label": "【U/C】",
+    "senses": [
+      {
+        "id": "ability_1",
+        "pos": "n.",
+        "meaning": "能力；才能",
+        "collocation": "have the ability to do sth",
+        "example": "She has the ability to solve complex problems quickly.",
+        "known": false
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "word": "abroad",
+    "level": 1,
+    "pos": "adv.",
+    "label": "【adv.】",
+    "senses": [
+      {
+        "id": "abroad_1",
+        "pos": "adv.",
+        "meaning": "在國外；到國外",
+        "collocation": "go/study/travel abroad",
+        "example": "Many Taiwanese students choose to study abroad after high school.",
+        "known": false
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "word": "absent",
+    "level": 1,
+    "pos": "adj.",
+    "label": "【adj.】",
+    "senses": [
+      {
+        "id": "absent_1",
+        "pos": "adj.",
+        "meaning": "缺席的；心不在焉的",
+        "collocation": "be absent from school/class",
+        "example": "John was absent from school yesterday because he caught a cold.",
+        "known": false
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "word": "accept",
+    "level": 1,
+    "pos": "v.",
+    "label": "【v.】",
+    "senses": [
+      {
+        "id": "accept_1",
+        "pos": "v.",
+        "meaning": "接受；接納",
+        "collocation": "accept an offer / invitation",
+        "example": "She gladly accepted the invitation to the birthday party.",
+        "known": false
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "word": "accident",
+    "level": 1,
+    "pos": "n.",
+    "label": "【C】",
+    "senses": [
+      {
+        "id": "accident_1",
+        "pos": "n.",
+        "meaning": "事故；意外",
+        "collocation": "by accident / traffic accident",
+        "example": "They discovered the ancient ruin purely by accident.",
+        "known": false
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "word": "achieve",
+    "level": 1,
+    "pos": "v.",
+    "label": "【v.】",
+    "senses": [
+      {
+        "id": "achieve_1",
+        "pos": "v.",
+        "meaning": "實現；達成（目標）",
+        "collocation": "achieve one's goal / dream",
+        "example": "With hard work and determination, you can achieve your goals.",
+        "known": false
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "word": "action",
+    "level": 1,
+    "pos": "n.",
+    "label": "【U/C】",
+    "senses": [
+      {
+        "id": "action_1",
+        "pos": "n.",
+        "meaning": "行動；動作",
+        "collocation": "take action to do sth",
+        "example": "The government needs to take immediate action to address the issue.",
+        "known": false
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "word": "active",
+    "level": 1,
+    "pos": "adj.",
+    "label": "【adj.】",
+    "senses": [
+      {
+        "id": "active_1",
+        "pos": "adj.",
+        "meaning": "活躍的；積極的",
+        "collocation": "take an active part in",
+        "example": "She plays an active role in student club activities.",
+        "known": false
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "word": "admire",
+    "level": 1,
+    "pos": "v.",
+    "label": "【v.】",
+    "senses": [
+      {
+        "id": "admire_1",
+        "pos": "v.",
+        "meaning": "欽佩；欣賞",
+        "collocation": "admire sb for sth",
+        "example": "I admire him for his honesty and courage under pressure.",
+        "known": false
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "word": "advice",
+    "level": 1,
+    "pos": "n.",
+    "label": "【U】",
+    "senses": [
+      {
+        "id": "advice_1",
+        "pos": "n.",
+        "meaning": "建議；忠告",
+        "collocation": "a piece of advice / take sb's advice",
+        "example": "My teacher gave me some practical advice on preparing for the exam.",
+        "known": false
+      }
+    ]
+  }
+]
