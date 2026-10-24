@@ -47,14 +47,12 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background-color 0.25s, color 0.25s, border-color 0.25s, opacity 0.25s; }
         body { background-color: var(--bg); color: var(--text-main); padding: 24px 16px; max-width: 800px; margin: 0 auto; min-height: 100vh; }
         
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         h1 { font-size: 1.5rem; color: var(--text-main); }
         .subtitle { font-size: 0.85rem; color: var(--text-sub); }
 
-        .header-actions { display: flex; gap: 8px; align-items: center; }
-
-        /* 按鈕與主題切換 */
-        .btn-action {
+        /* 主題切換按鈕 */
+        .theme-toggle-btn {
             padding: 6px 12px;
             border-radius: 20px;
             border: 1px solid var(--border);
@@ -63,11 +61,7 @@
             font-size: 0.85rem;
             cursor: pointer;
             font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
         }
-        .btn-action:hover { opacity: 0.85; }
 
         .filter-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
         .filter-select, .search-input { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; outline: none; }
@@ -90,6 +84,7 @@
         .senses-list { display: flex; flex-direction: column; gap: 12px; }
         .sense-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--sense-bg); border: 1px solid var(--sense-border); cursor: pointer; }
         
+        /* 已勾選意思的灰化樣式 */
         .sense-item.known { opacity: var(--sense-known-opacity); filter: grayscale(80%); }
         [data-theme="dark"] .sense-item.known { background: #161b22; border-color: #21262d; }
 
@@ -120,11 +115,6 @@
         pre { background: var(--pre-bg); color: var(--pre-text); padding: 14px; border-radius: 8px; font-size: 0.85rem; overflow-x: auto; white-space: pre-wrap; max-height: 300px; line-height: 1.5; }
         .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
         .btn-word { background: #2563eb; color: white; }
-
-        .encouragement-card { text-align: center; padding: 12px; }
-        .meme-badge { font-size: 2.5rem; margin-bottom: 8px; }
-        .meme-title { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
-        .meme-msg { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 12px 0; background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 8px; border: 1px dashed var(--primary); }
     </style>
 </head>
 <body>
@@ -134,13 +124,7 @@
             <h1>7000 單一字多義速刷系統</h1>
             <div class="subtitle">大考中心 108 課綱詞彙表</div>
         </div>
-        <div class="header-actions">
-            <label class="btn-action">
-                📂 載入本地 JSON
-                <input type="file" id="json-file-input" accept=".json" multiple style="display: none;" onchange="handleLocalFileUpload(event)">
-            </label>
-            <button class="btn-action" id="theme-btn" onclick="toggleTheme()">🌙 深色模式</button>
-        </div>
+        <button class="theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">🌙 深色模式</button>
     </header>
 
     <div class="filter-bar">
@@ -200,33 +184,37 @@
         </div>
     </div>
 
-    <!-- 67梗鼓勵彈窗 Modal -->
-    <div class="modal" id="meme-modal">
-        <div class="modal-content" style="max-width: 420px;">
-            <div class="encouragement-card">
-                <div class="meme-badge">🔥 67 達成！</div>
-                <div class="meme-title" id="meme-title">累計刷新 67 個單字！</div>
-                <div class="meme-msg" id="meme-msg">刷滿67單！太流氣了，繼續677777！</div>
-                <button class="btn btn-next" style="width: 100%; margin-top: 12px;" onclick="closeMemeModal()">繼續流氣刷字 🚀</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        const memeQuotes = [
-            "刷滿67單！太流氣了，繼續677777！",
-            "67這個數字不簡單，你今天簡直太六七！",
-            "第67個單字達陣！保持這個67氣勢！",
-            "太強了！累積67個單字，氣場67爆表！",
-            "流氣滿點！67單字斬，學測直接穩了！"
+        const defaultWordsData = [
+            {
+                id: 1, word: "margin", level: 4, pos: "n.", label: "【C】",
+                senses: [
+                    { id: "margin_1", pos: "n.", meaning: "頁邊空白處", collocation: "in the margins", example: "Students wrote notes in the margins.", known: false },
+                    { id: "margin_2", pos: "n.", meaning: "贏面差距；利潤", collocation: "by a narrow/wide margin", example: "The party won by a narrow margin. They secured victory by wide margins.", known: false }
+                ]
+            },
+            {
+                id: 2, word: "green", level: 1, pos: "adj./n./v.", label: "【adj.】",
+                senses: [
+                    { id: "green_1", pos: "adj.", meaning: "綠色的", collocation: "green tea / green light", example: "She was wearing a green dress.", known: false },
+                    { id: "green_2", pos: "adj.", meaning: "缺乏經驗的；菜鳥的（學測高頻）", collocation: "be green to sth / a green recruit", example: "I'm a bit green to this job, so please bear with me.", known: false },
+                    { id: "green_3", pos: "adj.", meaning: "嫉妒的", collocation: "green with envy", example: "When she saw his new sports car, she was green with envy.", known: false }
+                ]
+            },
+            {
+                id: 3, word: "address", level: 2, pos: "v./n.", label: "【v./C】",
+                senses: [
+                    { id: "address_1", pos: "n.", meaning: "地址", collocation: "home address / IP address", example: "Please write your name and address on this form.", known: false },
+                    { id: "address_2", pos: "v.", meaning: "處理；應對（議題、問題）（學測高頻）", collocation: "address the issue / address a problem", example: "The government must address the problem of poverty immediately.", known: false },
+                    { id: "address_3", pos: "v.", meaning: "向…演講；對…說話", collocation: "address the audience", example: "The principal addressed the students on the first day of school.", known: false }
+                ]
+            }
         ];
 
-        let wordsData = [];
-        let filteredWords = [];
+        let wordsData = JSON.parse(localStorage.getItem("ceec_vocab_data_v5_pure")) || defaultWordsData;
+        let filteredWords = [...wordsData];
         let currentIndex = 0;
-        let browsedCount = parseInt(localStorage.getItem("ceec_browsed_count")) || 0;
 
-        // 主題控制
         function initTheme() {
             const savedTheme = localStorage.getItem("ceec_theme_v5_pure") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
@@ -241,99 +229,14 @@
             document.getElementById("theme-btn").innerText = newTheme === "dark" ? "☀️ 淺色模式" : "🌙 深色模式";
         }
 
-        function saveData() { 
-            localStorage.setItem("ceec_vocab_data_v6_dynamic", JSON.stringify(wordsData)); 
-        }
-
-        // 初始化與讀取 JSON 資料 (自動抓取 words_7000_1.json ~ words_7000_6.json)
-        async function initData() {
-            const savedLocalData = localStorage.getItem("ceec_vocab_data_v6_dynamic");
-            
-            if (savedLocalData) {
-                try {
-                    wordsData = JSON.parse(savedLocalData);
-                    if (wordsData.length > 0) {
-                        applyFilters();
-                        return;
-                    }
-                } catch(e) {
-                    console.error("快取解析失敗，重新線上載入", e);
-                }
-            }
-
-            // 若沒有快取，嘗試從伺服器/GitHub 自動獲取 words_7000_1 ~ words_7000_6
-            document.getElementById("word-card").innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub);">正在載入 words_7000_1 ~ words_7000_6.json...</div>`;
-            
-            let combinedWords = [];
-            for (let i = 1; i <= 6; i++) {
-                try {
-                    const res = await fetch(`./words_7000_${i}.json`);
-                    if (res.ok) {
-                        const fileData = await res.json();
-                        if (Array.isArray(fileData)) {
-                            combinedWords = combinedWords.concat(fileData);
-                        }
-                    }
-                } catch (err) {
-                    console.log(`未找到或無法載入 words_7000_${i}.json`);
-                }
-            }
-
-            if (combinedWords.length > 0) {
-                wordsData = combinedWords;
-                saveData();
-                applyFilters();
-            } else {
-                document.getElementById("word-card").innerHTML = `
-                    <div style="text-align:center; padding:40px; color:var(--text-sub);">
-                        <p style="margin-bottom:12px; font-size:1.1rem; font-weight:bold;">尚未載入單字資料</p>
-                        <p style="font-size:0.9rem;">請確認 GitHub 專案目錄下已包含 <code>words_7000_1.json</code> 到 <code>words_7000_6.json</code>，<br>或是點擊右上角「📂 載入本地 JSON」進行手動上傳。</p>
-                    </div>`;
-            }
-        }
-
-        // 手動上傳本地 JSON
-        function handleLocalFileUpload(event) {
-            const files = event.target.files;
-            if (!files || files.length === 0) return;
-
-            let loadedCount = 0;
-            let tempCombinedWords = [];
-
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const parsed = JSON.parse(e.target.result);
-                        if (Array.isArray(parsed)) {
-                            tempCombinedWords = tempCombinedWords.concat(parsed);
-                        } else if (parsed && typeof parsed === 'object') {
-                            tempCombinedWords.push(parsed);
-                        }
-                    } catch(err) {
-                        alert(`檔案 ${file.name} 解析 JSON 失敗！`);
-                    }
-
-                    loadedCount++;
-                    if (loadedCount === files.length) {
-                        if (tempCombinedWords.length > 0) {
-                            wordsData = tempCombinedWords;
-                            saveData();
-                            applyFilters();
-                            alert(`成功載入 ${wordsData.length} 個單字！`);
-                        }
-                    }
-                };
-                reader.readAsText(file);
-            });
-        }
+        function saveData() { localStorage.setItem("ceec_vocab_data_v5_pure", JSON.stringify(wordsData)); }
 
         function applyFilters() {
             const levelVal = document.getElementById("level-filter").value;
             const searchVal = document.getElementById("search-input").value.toLowerCase().trim();
             filteredWords = wordsData.filter(w => {
-                const matchLevel = (levelVal === "all") || (w.level && w.level.toString() === levelVal);
-                const matchSearch = w.word ? w.word.toLowerCase().includes(searchVal) : false;
+                const matchLevel = (levelVal === "all") || (w.level.toString() === levelVal);
+                const matchSearch = w.word.toLowerCase().includes(searchVal);
                 return matchLevel && matchSearch;
             });
             currentIndex = 0;
@@ -348,14 +251,14 @@
                 return;
             }
             const current = filteredWords[currentIndex];
-            let sensesHtml = (current.senses || []).map((sense, sIndex) => `
+            let sensesHtml = current.senses.map((sense, sIndex) => `
                 <div class="sense-item ${sense.known ? 'known' : ''}" onclick="toggleSenseDirect(${sIndex})">
                     <span class="sense-key-badge">${sIndex + 1}</span>
                     <input type="checkbox" class="sense-checkbox" ${sense.known ? 'checked' : ''} onclick="event.stopPropagation();" onchange="toggleSense('${current.word}', ${sIndex}, this.checked)">
                     <div class="sense-content">
-                        <div class="sense-def"><span style="color:var(--primary); font-size:0.85rem;">[${sense.pos || ''}]</span> ${sense.meaning || ''}</div>
-                        ${sense.collocation ? `<div class="sense-collocation">常用搭配：${sense.collocation}</div>` : ''}
-                        ${sense.example ? `<div class="sense-example">"${sense.example}"</div>` : ''}
+                        <div class="sense-def"><span style="color:var(--primary); font-size:0.85rem;">[${sense.pos}]</span> ${sense.meaning}</div>
+                        <div class="sense-collocation">常用搭配：${sense.collocation}</div>
+                        <div class="sense-example">"${sense.example}"</div>
                     </div>
                 </div>
             `).join('');
@@ -364,8 +267,8 @@
                 <div class="card-header">
                     <div class="word-title">${current.word} <span style="font-size:1.1rem; color:var(--text-sub); font-weight:normal;">${current.label || ''}</span></div>
                     <div class="word-meta">
-                        <span class="tag tag-level">Level ${current.level || 1}</span>
-                        <span class="tag tag-pos">${current.pos || ''}</span>
+                        <span class="tag tag-level">Level ${current.level}</span>
+                        <span class="tag tag-pos">${current.pos}</span>
                     </div>
                 </div>
                 <div class="senses-list">${sensesHtml}</div>
@@ -375,7 +278,7 @@
 
         function toggleSense(wordName, senseIndex, isChecked) {
             const wordObj = wordsData.find(w => w.word === wordName);
-            if (wordObj && wordObj.senses[senseIndex]) {
+            if (wordObj) {
                 wordObj.senses[senseIndex].known = isChecked;
                 saveData();
                 renderCard();
@@ -384,37 +287,17 @@
 
         function toggleSenseDirect(senseIndex) {
             const current = filteredWords[currentIndex];
-            if (current && current.senses && current.senses[senseIndex]) {
+            if (current && current.senses[senseIndex]) {
                 current.senses[senseIndex].known = !current.senses[senseIndex].known;
                 saveData();
                 renderCard();
             }
         }
 
-        function checkEncouragementTrigger() {
-            browsedCount++;
-            localStorage.setItem("ceec_browsed_count", browsedCount);
-            if (browsedCount > 0 && browsedCount % 67 === 0) {
-                trigger67MemeModal();
-            }
-        }
-
-        function trigger67MemeModal() {
-            const randomMsg = memeQuotes[Math.floor(Math.random() * memeQuotes.length)];
-            document.getElementById("meme-title").innerText = `累計刷新 67 個單字！`;
-            document.getElementById("meme-msg").innerText = randomMsg;
-            document.getElementById("meme-modal").style.display = "flex";
-        }
-
-        function closeMemeModal() {
-            document.getElementById("meme-modal").style.display = "none";
-        }
-
         function nextWord() { 
             if (filteredWords.length === 0) return; 
             currentIndex = (currentIndex + 1) % filteredWords.length; 
             renderCard(); 
-            checkEncouragementTrigger();
         }
 
         function prevWord() { 
@@ -427,12 +310,10 @@
             document.getElementById("stat-current").innerText = filteredWords.length > 0 ? `${currentIndex + 1} / ${filteredWords.length}` : `0 / 0`;
             let retainedWordsCount = 0, unknownSensesTotal = 0;
             wordsData.forEach(w => {
-                if (w.senses) {
-                    const unknownSenses = w.senses.filter(s => !s.known);
-                    if (unknownSenses.length > 0) {
-                        retainedWordsCount++;
-                        unknownSensesTotal += unknownSenses.length;
-                    }
+                const unknownSenses = w.senses.filter(s => !s.known);
+                if (unknownSenses.length > 0) {
+                    retainedWordsCount++;
+                    unknownSensesTotal += unknownSenses.length;
                 }
             });
             document.getElementById("stat-retained").innerText = retainedWordsCount;
@@ -442,12 +323,11 @@
         function showExport() {
             let lines = [];
             wordsData.forEach(w => {
-                if (!w.senses) return;
                 const unknownSenses = w.senses.filter(s => !s.known);
                 if (unknownSenses.length === 0) return;
-                lines.push(`【${w.word} ${w.label || ''}】 (Level ${w.level || ''})`);
+                lines.push(`【${w.word} ${w.label || ''}】 (Level ${w.level})`);
                 unknownSenses.forEach(s => {
-                    lines.push(`  • [${s.pos || ''}] ${s.meaning || ''}\n    搭配: ${s.collocation || '無'}\n    例句: ${s.example || '無'}`);
+                    lines.push(`  • [${s.pos}] ${s.meaning}\n    搭配: ${s.collocation}\n    例句: ${s.example}`);
                 });
             });
             document.getElementById("export-preview").innerText = lines.join("\n\n") || "太棒了！所有單字皆已掌握！";
@@ -466,7 +346,7 @@
 
             const retainedData = wordsData.map(w => ({
                 ...w,
-                retained_senses: (w.senses || []).filter(s => !s.known)
+                retained_senses: w.senses.filter(s => !s.known)
             })).filter(w => w.retained_senses.length > 0);
 
             if (retainedData.length === 0) {
@@ -499,7 +379,7 @@
                         children: [
                             new TextRun({ text: item.word + " ", bold: true, size: 26, color: "0F172A" }),
                             new TextRun({ text: (item.label || "") + "\n", bold: true, size: 20, color: "1E3A8A" }),
-                            new TextRun({ text: `Level ${item.level || 1} | ${item.pos || ''}`, size: 18, color: "64748B" })
+                            new TextRun({ text: `Level ${item.level} | ${item.pos}`, size: 18, color: "64748B" })
                         ]
                     })
                 ];
@@ -509,12 +389,12 @@
                     rightParagraphs.push(
                         new Paragraph({
                             children: [
-                                new TextRun({ text: `• [${sense.pos || ''}] `, bold: true, color: "1E3A8A", size: 20 }),
-                                new TextRun({ text: `${sense.meaning || ''}\n`, bold: true, color: "0F172A", size: 20 }),
+                                new TextRun({ text: `• [${sense.pos}] `, bold: true, color: "1E3A8A", size: 20 }),
+                                new TextRun({ text: `${sense.meaning}\n`, bold: true, color: "0F172A", size: 20 }),
                                 new TextRun({ text: "   搭配：", color: "64748B", size: 18 }),
-                                new TextRun({ text: `${sense.collocation || '無'}\n`, bold: true, color: "0284C7", size: 18 }),
+                                new TextRun({ text: `${sense.collocation}\n`, bold: true, color: "0284C7", size: 18 }),
                                 new TextRun({ text: "   例句：", color: "64748B", size: 18 }),
-                                new TextRun({ text: `“${sense.example || ''}”`, italics: true, color: "334155", size: 18 })
+                                new TextRun({ text: `“${sense.example}”`, italics: true, color: "334155", size: 18 })
                             ]
                         })
                     );
@@ -552,11 +432,10 @@
         function downloadTXT() {
             let lines = [];
             wordsData.forEach(w => {
-                if (!w.senses) return;
                 const unknownSenses = w.senses.filter(s => !s.known);
                 if (unknownSenses.length === 0) return;
                 const front = `${w.word} ${w.label || ''}`.trim();
-                const backHtml = unknownSenses.map(s => `${s.meaning} ${s.example || ''}`).join("<br>");
+                const backHtml = unknownSenses.map(s => `${s.meaning} ${s.example}`).join("<br>");
                 lines.push(`${front}\t${backHtml}`);
             });
 
@@ -570,11 +449,10 @@
         }
 
         function resetAllProgress() {
-            if (confirm("確定要重置所有勾選狀態、快取與瀏覽計數嗎？")) {
-                localStorage.removeItem("ceec_vocab_data_v6_dynamic");
-                localStorage.setItem("ceec_browsed_count", 0);
-                browsedCount = 0;
-                initData();
+            if (confirm("確定要重置所有勾選狀態嗎？")) {
+                wordsData.forEach(w => w.senses.forEach(s => s.known = false));
+                saveData();
+                renderCard();
                 closeExport();
             }
         }
@@ -589,7 +467,7 @@
 
         // 初始化
         initTheme();
-        initData();
+        renderCard();
     </script>
 </body>
 </html>
