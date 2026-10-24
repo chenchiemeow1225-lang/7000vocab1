@@ -228,7 +228,6 @@
         ];
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // 清除舊版將整份單字硬存進 localStorage 的暫存資料
             localStorage.removeItem("ceec_vocab_data_v5_pure");
             
             initTheme();
@@ -274,7 +273,8 @@
         async function fetchWordsData() {
             const overlay = document.getElementById('loadingOverlay');
             try {
-                const response = await fetch('words_7000.json');
+                // 加上 ./ 與時間戳防快取機制
+                const response = await fetch('./words_7000.json?v=' + Date.now());
                 if (!response.ok) throw new Error(`HTTP 錯誤: ${response.status}`);
                 wordsData = await response.json();
 
@@ -332,7 +332,7 @@
         function renderCard() {
             const cardEl = document.getElementById("word-card");
             if (filteredWords.length === 0) {
-                cardEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub);">⚠️ 目前沒有單字資料，請確認 <code>words_7000.json</code> 檔案已正確上傳。</div>`;
+                cardEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub);">⚠️ 目前沒有單字資料，請確認 <code>words_7000.json</code> 檔案已正確上傳至 GitHub。</div>`;
                 updateStats();
                 return;
             }
