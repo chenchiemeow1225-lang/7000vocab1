@@ -1,172 +1,382 @@
 [
-  {
-    "id": 1,
-    "word": "ability",
-    "level": 1,
-    "pos": "n.",
-    "label": "【U/C】",
-    "senses": [
-      {
-        "id": "ability_1",
-        "pos": "n.",
-        "meaning": "能力；才能",
-        "collocation": "have the ability to do sth",
-        "example": "She has the ability to solve complex problems quickly.",
-        "known": false
-      }
-    ]
-  },
-  {
-    "id": 2,
-    "word": "abroad",
-    "level": 1,
-    "pos": "adv.",
-    "label": "【adv.】",
-    "senses": [
-      {
-        "id": "abroad_1",
-        "pos": "adv.",
-        "meaning": "在國外；到國外",
-        "collocation": "go/study/travel abroad",
-        "example": "Many Taiwanese students choose to study abroad after high school.",
-        "known": false
-      }
-    ]
-  },
-  {
-    "id": 3,
-    "word": "absent",
-    "level": 1,
-    "pos": "adj.",
-    "label": "【adj.】",
-    "senses": [
-      {
-        "id": "absent_1",
-        "pos": "adj.",
-        "meaning": "缺席的；心不在焉的",
-        "collocation": "be absent from school/class",
-        "example": "John was absent from school yesterday because he caught a cold.",
-        "known": false
-      }
-    ]
-  },
-  {
-    "id": 4,
-    "word": "accept",
-    "level": 1,
-    "pos": "v.",
-    "label": "【v.】",
-    "senses": [
-      {
-        "id": "accept_1",
-        "pos": "v.",
-        "meaning": "接受；接納",
-        "collocation": "accept an offer / invitation",
-        "example": "She gladly accepted the invitation to the birthday party.",
-        "known": false
-      }
-    ]
-  },
-  {
-    "id": 5,
-    "word": "accident",
-    "level": 1,
-    "pos": "n.",
-    "label": "【C】",
-    "senses": [
-      {
-        "id": "accident_1",
-        "pos": "n.",
-        "meaning": "事故；意外",
-        "collocation": "by accident / traffic accident",
-        "example": "They discovered the ancient ruin purely by accident.",
-        "known": false
-      }
-    ]
-  },
-  {
-    "id": 6,
-    "word": "achieve",
-    "level": 1,
-    "pos": "v.",
-    "label": "【v.】",
-    "senses": [
-      {
-        "id": "achieve_1",
-        "pos": "v.",
-        "meaning": "實現；達成（目標）",
-        "collocation": "achieve one's goal / dream",
-        "example": "With hard work and determination, you can achieve your goals.",
-        "known": false
-      }
-    ]
-  },
-  {
-    "id": 7,
-    "word": "action",
-    "level": 1,
-    "pos": "n.",
-    "label": "【U/C】",
-    "senses": [
-      {
-        "id": "action_1",
-        "pos": "n.",
-        "meaning": "行動；動作",
-        "collocation": "take action to do sth",
-        "example": "The government needs to take immediate action to address the issue.",
-        "known": false
-      }
-    ]
-  },
-  {
-    "id": 8,
-    "word": "active",
-    "level": 1,
-    "pos": "adj.",
-    "label": "【adj.】",
-    "senses": [
-      {
-        "id": "active_1",
-        "pos": "adj.",
-        "meaning": "活躍的；積極的",
-        "collocation": "take an active part in",
-        "example": "She plays an active role in student club activities.",
-        "known": false
-      }
-    ]
-  },
-  {
-    "id": 9,
-    "word": "admire",
-    "level": 1,
-    "pos": "v.",
-    "label": "【v.】",
-    "senses": [
-      {
-        "id": "admire_1",
-        "pos": "v.",
-        "meaning": "欽佩；欣賞",
-        "collocation": "admire sb for sth",
-        "example": "I admire him for his honesty and courage under pressure.",
-        "known": false
-      }
-    ]
-  },
-  {
-    "id": 10,
-    "word": "advice",
-    "level": 1,
-    "pos": "n.",
-    "label": "【U】",
-    "senses": [
-      {
-        "id": "advice_1",
-        "pos": "n.",
-        "meaning": "建議；忠告",
-        "collocation": "a piece of advice / take sb's advice",
-        "example": "My teacher gave me some practical advice on preparing for the exam.",
-        "known": false
-      }
-    ]
-  }
+{
+"id": 1,
+"word": "ability",
+"level": 1,
+"pos": "n.",
+"label": "【U/C】",
+"senses": [
+{
+"id": "ability_1",
+"pos": "n.",
+"meaning": "能力；才能",
+"collocation": "have the ability to do sth",
+"example": "She has the ability to solve complex problems quickly.",
+"known": false
+}
+]
+},
+{
+"id": 2,
+"word": "abroad",
+"level": 1,
+"pos": "adv.",
+"label": "【adv.】",
+"senses": [
+{
+"id": "abroad_1",
+"pos": "adv.",
+"meaning": "在國外；到國外",
+"collocation": "go/study/travel abroad",
+"example": "Many Taiwanese students choose to study abroad after high school.",
+"known": false
+}
+]
+},
+{
+"id": 3,
+"word": "absent",
+"level": 1,
+"pos": "adj.",
+"label": "【adj.】",
+"senses": [
+{
+"id": "absent_1",
+"pos": "adj.",
+"meaning": "缺席的；心不在焉的",
+"collocation": "be absent from school/class",
+"example": "John was absent from school yesterday because he caught a cold.",
+"known": false
+}
+]
+},
+{
+"id": 4,
+"word": "accept",
+"level": 1,
+"pos": "v.",
+"label": "【v.】",
+"senses": [
+{
+"id": "accept_1",
+"pos": "v.",
+"meaning": "接受；接納",
+"collocation": "accept an offer / invitation",
+"example": "She gladly accepted the invitation to the birthday party.",
+"known": false
+}
+]
+},
+{
+"id": 5,
+"word": "accident",
+"level": 1,
+"pos": "n.",
+"label": "【C】",
+"senses": [
+{
+"id": "accident_1",
+"pos": "n.",
+"meaning": "事故；意外",
+"collocation": "by accident / traffic accident",
+"example": "They discovered the ancient ruin purely by accident.",
+"known": false
+}
+]
+},
+{
+"id": 6,
+"word": "act",
+"level": 1,
+"pos": "n./v.",
+"label": "【n./v.】",
+"senses": [
+{
+"id": "act_1",
+"pos": "n.",
+"meaning": "行為；法案",
+"collocation": "an act of kindness",
+"example": "Helping the elderly across the street is a noble act.",
+"known": false
+},
+{
+"id": "act_2",
+"pos": "v.",
+"meaning": "行動；扮演",
+"collocation": "act as / act like",
+"example": "He acts as the manager when the boss is away.",
+"known": false
+}
+]
+},
+{
+"id": 7,
+"word": "action",
+"level": 1,
+"pos": "n.",
+"label": "【U/C】",
+"senses": [
+{
+"id": "action_1",
+"pos": "n.",
+"meaning": "行動；動作",
+"collocation": "take action to do sth",
+"example": "The government needs to take immediate action to address the issue.",
+"known": false
+}
+]
+},
+{
+"id": 8,
+"word": "address",
+"level": 1,
+"pos": "v./n.",
+"label": "【v./n.】",
+"senses": [
+{
+"id": "address_1",
+"pos": "n.",
+"meaning": "地址；演說",
+"collocation": "email address / give an address",
+"example": "Please write your name and address on the envelope.",
+"known": false
+},
+{
+"id": "address_2",
+"pos": "v.",
+"meaning": "處理；向…發表演說",
+"collocation": "address a problem / issue",
+"example": "The committee met to address the environmental concerns.",
+"known": false
+}
+]
+},
+{
+"id": 9,
+"word": "admit",
+"level": 1,
+"pos": "v.",
+"label": "【v.】",
+"senses": [
+{
+"id": "admit_1",
+"pos": "v.",
+"meaning": "承認；准許進入",
+"collocation": "admit to doing sth / be admitted to",
+"example": "He finally admitted his mistake to his teacher.",
+"known": false
+}
+]
+},
+{
+"id": 10,
+"word": "advance",
+"level": 1,
+"pos": "n./v.",
+"label": "【n./v.】",
+"senses": [
+{
+"id": "advance_1",
+"pos": "n.",
+"meaning": "前進；進步",
+"collocation": "in advance / technological advance",
+"example": "Please let us know your food preferences in advance.",
+"known": false
+},
+{
+"id": "advance_2",
+"pos": "v.",
+"meaning": "向前移動；發展",
+"collocation": "advance in science and technology",
+"example": "Medical science continues to advance rapidly.",
+"known": false
+}
+]
+},
+{
+"id": 11,
+"word": "advice",
+"level": 1,
+"pos": "n.",
+"label": "【U】",
+"senses": [
+{
+"id": "advice_1",
+"pos": "n.",
+"meaning": "建議；忠告",
+"collocation": "a piece of advice / take sb's advice",
+"example": "My teacher gave me some practical advice on preparing for the exam.",
+"known": false
+}
+]
+},
+{
+"id": 12,
+"word": "afford",
+"level": 1,
+"pos": "v.",
+"label": "【v.】",
+"senses": [
+{
+"id": "afford_1",
+"pos": "v.",
+"meaning": "負擔得起；抽得出（時間等）",
+"collocation": "can afford to do sth",
+"example": "We cannot afford to waste any more time on this project.",
+"known": false
+}
+]
+},
+{
+"id": 13,
+"word": "age",
+"level": 1,
+"pos": "n./v.",
+"label": "【n./v.】",
+"senses": [
+{
+"id": "age_1",
+"pos": "n.",
+"meaning": "年齡；時代",
+"collocation": "at the age of / golden age",
+"example": "She learned to play the piano at the age of six.",
+"known": false
+},
+{
+"id": "age_2",
+"pos": "v.",
+"meaning": "變老；老化",
+"collocation": "age gracefully",
+"example": "Good wine tends to improve as it ages.",
+"known": false
+}
+]
+},
+{
+"id": 14,
+"word": "agree",
+"level": 1,
+"pos": "v.",
+"label": "【v.】",
+"senses": [
+{
+"id": "agree_1",
+"pos": "v.",
+"meaning": "同意；贊同",
+"collocation": "agree with sb / agree on sth",
+"example": "I completely agree with your assessment of the situation.",
+"known": false
+}
+]
+},
+{
+"id": 15,
+"word": "air",
+"level": 1,
+"pos": "n.",
+"label": "【U】",
+"senses": [
+{
+"id": "air_1",
+"pos": "n.",
+"meaning": "空氣；氣氛",
+"collocation": "fresh air / in the air",
+"example": "Opening the windows lets in some fresh air.",
+"known": false
+}
+]
+},
+{
+"id": 16,
+"word": "allow",
+"level": 1,
+"pos": "v.",
+"label": "【v.】",
+"senses": [
+{
+"id": "allow_1",
+"pos": "v.",
+"meaning": "允許；准許",
+"collocation": "allow sb to do sth",
+"example": "The museum does not allow visitors to take photos inside.",
+"known": false
+}
+]
+},
+{
+"id": 17,
+"word": "answer",
+"level": 1,
+"pos": "n./v.",
+"label": "【n./v.】",
+"senses": [
+{
+"id": "answer_1",
+"pos": "n.",
+"meaning": "答案；回應",
+"collocation": "find an answer / answer to the question",
+"example": "Do you know the answer to this math puzzle?",
+"known": false
+},
+{
+"id": "answer_2",
+"pos": "v.",
+"meaning": "回答；接（電話）",
+"collocation": "answer the phone / answer questions",
+"example": "She quickly answered the phone when it rang.",
+"known": false
+}
+]
+},
+{
+"id": 18,
+"word": "appear",
+"level": 1,
+"pos": "v.",
+"label": "【v.】",
+"senses": [
+{
+"id": "appear_1",
+"pos": "v.",
+"meaning": "出現；似乎",
+"collocation": "appear to be / appear out of nowhere",
+"example": "A rainbow appeared in the sky after the sudden rain.",
+"known": false
+}
+]
+},
+{
+"id": 19,
+"word": "area",
+"level": 1,
+"pos": "n.",
+"label": "【C】",
+"senses": [
+{
+"id": "area_1",
+"pos": "n.",
+"meaning": "地區；領域",
+"collocation": "residential area / in the area of",
+"example": "This mountainous area is famous for its scenic views.",
+"known": false
+}
+]
+},
+{
+"id": 20,
+"word": "arrive",
+"level": 1,
+"pos": "v.",
+"label": "【v.】",
+"senses": [
+{
+"id": "arrive_1",
+"pos": "v.",
+"meaning": "到達；抵達",
+"collocation": "arrive at / in",
+"example": "The train is scheduled to arrive at the station in ten minutes.",
+"known": false
+}
+]
+}
 ]
