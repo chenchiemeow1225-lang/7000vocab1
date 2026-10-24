@@ -7,42 +7,8 @@
         "id": "observe_1",
         "pos": "vt.",
         "chinese": "觀察；注意到",
-        "collocation": "observe a trend / observe changes",
+        "collocation": "observe a trend",
         "example": "Scientists closely observed the movement of the storm."
-      },
-      {
-        "id": "observe_2",
-        "pos": "vt.",
-        "chinese": "遵守（法律、規則）",
-        "collocation": "observe the law / observe rules",
-        "example": "Drivers must observe the traffic speed limits at all times."
-      },
-      {
-        "id": "observe_3",
-        "pos": "vt.",
-        "chinese": "慶祝；過（節日）",
-        "collocation": "observe a holiday / observe Christmas",
-        "example": "How do local residents observe Thanksgiving in this town?"
-      }
-    ]
-  },
-  {
-    "word": "margin",
-    "level": 5,
-    "senses": [
-      {
-        "id": "margin_1",
-        "pos": "n.",
-        "chinese": "頁邊空白",
-        "collocation": "leave a margin / notes in the margin",
-        "example": "She wrote explanatory notes in the margin of her textbook."
-      },
-      {
-        "id": "margin_2",
-        "pos": "n.",
-        "chinese": "差距；餘地",
-        "collocation": "win by a wide margin / safety margin",
-        "example": "The candidate won the election by a very narrow margin."
       }
     ]
   }
