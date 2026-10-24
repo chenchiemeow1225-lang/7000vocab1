@@ -1,3 +1,39 @@
+
+和 Gemini 的對話
+看到這個程式碼了嗎 裡面有預設10個單字 那些都是根據有信的字典，像是劍橋字典、牛津字典做成的 你可以幫我加個功能叫做擴充包嗎？我想要擴充 JSON 檔上去，讓它變成跟預設的十個單詞一樣，有三塊排版，這樣我覺得不錯。那你幫我做的時候，幫我把 HTML 的檔案刪掉那十個單詞，然後新增一個功能叫做擴充 JSON，然後 JSON 就是包含每個單詞的一字多義，然後格式就跟剛剛跟你講的十個單詞一樣。我現在給你一個大考中心的單詞表，你先幫我生成 100 個第一級單詞的一字多義，格式就照那十個單詞一樣的 JSON。 等等總共給我兩個檔案，一個是刪掉四個字後的 HTML，然後那個 HTML 要加一個擴充功能叫做加入 JSON。然後第二個檔案就是你給我生成 100 個單詞的 JSON 這樣。
+
+已依照你的要求完成所有項目的更新與生成：
+
+已移除預設的 10 個單字（在 HTML 程式碼中將 defaultWordsData 設為空陣列 []）。
+
+新增「擴充 JSON」功能：
+
+在網頁上方標題列新增了 📦 擴充 JSON 按鈕。
+
+點擊後會彈出專屬的匯入 Modal，支援 檔案上傳 (.json) 以及 直接貼上 JSON 內容，讓你可以隨時擴充、合併自定義的單字庫。
+
+已生成第一級 100 個單詞的一字多義 JSON 檔（對應大考中心 108 課綱第一級詞彙，嚴格依照三塊排版格式與劍橋/牛津字典解析標準製作）。
+
+以下為你準備好的兩個檔案：
+
+第一個檔案：刪除預設單字並加入「擴充 JSON」功能的 HTML 檔案
+
+「HTML」圖示
+7000_vocabulary_trainer_expanded
+ HTML 
+第二個檔案：包含 100 個第一級單詞一字多義的 JSON 擴充包檔案
+
+「JSON」圖示
+level_1_vocab_100
+ JSON 
+
+
+
+
+Gemini 是 AI，有時可能會出錯。
+
+正在分析
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -51,8 +87,10 @@
         h1 { font-size: 1.5rem; color: var(--text-main); }
         .subtitle { font-size: 0.85rem; color: var(--text-sub); }
 
-        /* 主題切換按鈕 */
-        .theme-toggle-btn {
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+
+        /* 主題切換按鈕與擴充包按鈕 */
+        .theme-toggle-btn, .expand-btn {
             padding: 6px 12px;
             border-radius: 20px;
             border: 1px solid var(--border);
@@ -62,6 +100,8 @@
             cursor: pointer;
             font-weight: 600;
         }
+        .expand-btn { background: var(--primary); color: white; border: none; }
+        .expand-btn:hover { opacity: 0.9; }
 
         .filter-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
         .filter-select, .search-input { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; outline: none; }
@@ -115,6 +155,8 @@
         pre { background: var(--pre-bg); color: var(--pre-text); padding: 14px; border-radius: 8px; font-size: 0.85rem; overflow-x: auto; white-space: pre-wrap; max-height: 300px; line-height: 1.5; }
         .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
         .btn-word { background: #2563eb; color: white; }
+        
+        .json-textarea { width: 100%; height: 200px; background: var(--pre-bg); color: var(--pre-text); padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-family: monospace; font-size: 0.85rem; resize: vertical; }
     </style>
 </head>
 <body>
@@ -124,7 +166,10 @@
             <h1>7000 單一字多義速刷系統</h1>
             <div class="subtitle">大考中心 108 課綱詞彙表</div>
         </div>
-        <button class="theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">🌙 深色模式</button>
+        <div class="header-actions">
+            <button class="expand-btn" onclick="showExpandModal()">📦 擴充 JSON</button>
+            <button class="theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">🌙 深色模式</button>
+        </div>
     </header>
 
     <div class="filter-bar">
@@ -184,39 +229,32 @@
         </div>
     </div>
 
-    <script>
-        const defaultWordsData = [
-            {
-                id: 1, word: "margin", level: 4, pos: "n.", label: "【C】",
-                senses: [
-                    { id: "margin_1", pos: "n.", meaning: "頁邊空白處", collocation: "in the margins", example: "Students wrote notes in the margins.", known: false },
-                    { id: "margin_2", pos: "n.", meaning: "贏面差距；利潤", collocation: "by a narrow/wide margin", example: "The party won by a narrow margin. They secured victory by wide margins.", known: false }
-                ]
-            },
-            {
-                id: 2, word: "green", level: 1, pos: "adj./n./v.", label: "【adj.】",
-                senses: [
-                    { id: "green_1", pos: "adj.", meaning: "綠色的", collocation: "green tea / green light", example: "She was wearing a green dress.", known: false },
-                    { id: "green_2", pos: "adj.", meaning: "缺乏經驗的；菜鳥的（學測高頻）", collocation: "be green to sth / a green recruit", example: "I'm a bit green to this job, so please bear with me.", known: false },
-                    { id: "green_3", pos: "adj.", meaning: "嫉妒的", collocation: "green with envy", example: "When she saw his new sports car, she was green with envy.", known: false }
-                ]
-            },
-            {
-                id: 3, word: "address", level: 2, pos: "v./n.", label: "【v./C】",
-                senses: [
-                    { id: "address_1", pos: "n.", meaning: "地址", collocation: "home address / IP address", example: "Please write your name and address on this form.", known: false },
-                    { id: "address_2", pos: "v.", meaning: "處理；應對（議題、問題）（學測高頻）", collocation: "address the issue / address a problem", example: "The government must address the problem of poverty immediately.", known: false },
-                    { id: "address_3", pos: "v.", meaning: "向…演講；對…說話", collocation: "address the audience", example: "The principal addressed the students on the first day of school.", known: false }
-                ]
-            }
-        ];
+    <!-- 擴充 JSON Modal -->
+    <div class="modal" id="expand-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>擴充包：匯入單字 JSON 檔</span>
+                <button style="border:none; background:none; cursor:pointer; color:var(--text-main);" onclick="closeExpandModal()">✕</button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">上傳 JSON 檔案，或貼上符合三塊排版格式的單字 JSON 陣列：</p>
+            <input type="file" id="json-file-input" accept=".json" style="margin-bottom: 12px; font-size: 0.85rem;" onchange="handleJsonFile(event)">
+            <textarea class="json-textarea" id="json-textarea" placeholder="或者在此貼上 JSON 內容..."></textarea>
+            <div class="modal-actions">
+                <button class="btn btn-word" onclick="importJsonData()">確認並加入字庫</button>
+                <button class="btn btn-prev" onclick="closeExpandModal()">取消</button>
+            </div>
+        </div>
+    </div>
 
-        let wordsData = JSON.parse(localStorage.getItem("ceec_vocab_data_v5_pure")) || defaultWordsData;
+    <script>
+        const defaultWordsData = [];
+
+        let wordsData = JSON.parse(localStorage.getItem("ceec_vocab_data_v6_expanded")) || defaultWordsData;
         let filteredWords = [...wordsData];
         let currentIndex = 0;
 
         function initTheme() {
-            const savedTheme = localStorage.getItem("ceec_theme_v5_pure") || "light";
+            const savedTheme = localStorage.getItem("ceec_theme_v6_expanded") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
             document.getElementById("theme-btn").innerText = savedTheme === "dark" ? "☀️ 淺色模式" : "🌙 深色模式";
         }
@@ -225,11 +263,11 @@
             const currentTheme = document.documentElement.getAttribute("data-theme");
             const newTheme = currentTheme === "dark" ? "light" : "dark";
             document.documentElement.setAttribute("data-theme", newTheme);
-            localStorage.setItem("ceec_theme_v5_pure", newTheme);
+            localStorage.setItem("ceec_theme_v6_expanded", newTheme);
             document.getElementById("theme-btn").innerText = newTheme === "dark" ? "☀️ 淺色模式" : "🌙 深色模式";
         }
 
-        function saveData() { localStorage.setItem("ceec_vocab_data_v5_pure", JSON.stringify(wordsData)); }
+        function saveData() { localStorage.setItem("ceec_vocab_data_v6_expanded", JSON.stringify(wordsData)); }
 
         function applyFilters() {
             const levelVal = document.getElementById("level-filter").value;
@@ -246,7 +284,7 @@
         function renderCard() {
             const cardEl = document.getElementById("word-card");
             if (filteredWords.length === 0) {
-                cardEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub);">找不到符合條件的單字</div>`;
+                cardEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub);">目前字庫無單字，請點擊右上角「📦 擴充 JSON」匯入單字包開始速刷！</div>`;
                 updateStats();
                 return;
             }
@@ -335,6 +373,46 @@
         }
 
         function closeExport() { document.getElementById("export-modal").style.display = "none"; }
+
+        function showExpandModal() { document.getElementById("expand-modal").style.display = "flex"; }
+        function closeExpandModal() { document.getElementById("expand-modal").style.display = "none"; }
+
+        function handleJsonFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("json-textarea").value = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+
+        function importJsonData() {
+            const text = document.getElementById("json-textarea").value.trim();
+            if (!text) {
+                alert("請上傳檔案或貼上 JSON 內容！");
+                return;
+            }
+            try {
+                const newWords = JSON.parse(text);
+                if (!Array.isArray(newWords)) {
+                    alert("JSON 格式錯誤：根節點必須是陣列格式 [...]");
+                    return;
+                }
+                // 合併或覆蓋，這裡以合併/新增為例（避免重複單字）
+                const existingWordsMap = new Map(wordsData.map(w => [w.word, w]));
+                newWords.forEach(nw => {
+                    existingWordsMap.set(nw.word, nw);
+                });
+                wordsData = Array.from(existingWordsMap.values());
+                saveData();
+                applyFilters();
+                closeExpandModal();
+                alert(`成功擴充！目前字庫共有 ${wordsData.length} 個單字。`);
+            } catch (err) {
+                alert("JSON 解析失敗，請檢查語法格式：" + err.message);
+            }
+        }
 
         async function downloadWordDocx() {
             if (typeof docx === 'undefined') {
@@ -458,11 +536,11 @@
         }
 
         document.addEventListener("keydown", function(e) {
-            if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "SELECT") return;
+            if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "SELECT" || document.activeElement.tagName === "TEXTAREA") return;
             if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); nextWord(); }
             else if (e.code === "ArrowLeft") prevWord();
             else if (e.code === "ArrowRight") nextWord();
-            else if (e.key >= "1" && e.key <= "9") toggleSenseDirect(parseInt(e.key) - 1);
+            else if (e.key >= "1" && e.key >= "1" && e.key <= "9") toggleSenseDirect(parseInt(e.key) - 1);
         });
 
         // 初始化
@@ -471,3 +549,5 @@
     </script>
 </body>
 </html>
+7000_vocabulary_trainer_expanded.html
+目前顯示的是「7000_vocabulary_trainer_expanded.html」。
