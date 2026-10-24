@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7000 單一字多義速刷系統</title>
+    <!-- 引入 docx.js 以支援 Word 筆記匯出 -->
+    <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --accent-blue: #0284c7;
+            --sense-bg: #fafafa;
+            --sense-border: #f0f0f0;
+            --modal-bg: rgba(0, 0, 0, 0.5);
+            --modal-content-bg: #ffffff;
+            --pre-bg: #1e293b;
+            --pre-text: #f8fafc;
+            --sense-known-opacity: 0.45;
+            --dropzone-bg: #f1f5f9;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0d1117;
+            --card-bg: #161b22;
+            --text-main: #e6edf3;
+            --text-sub: #8b949e;
+            --border: #30363d;
+            --primary: #58a6ff;
+            --primary-hover: #388bfd;
+            --accent-blue: #79c0ff;
+            --sense-bg: #21262d;
+            --sense-border: #30363d;
+            --modal-bg: rgba(0, 0, 0, 0.8);
+            --modal-content-bg: #161b22;
+            --pre-bg: #010409;
+            --pre-text: #c9d1d9;
+            --sense-known-opacity: 0.25;
+            --dropzone-bg: #21262d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+        body { background-color: var(--bg); color: var(--text-main); padding: 20px 16px; max-width: 850px; margin: 0 auto; min-height: 100vh; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+        h1 { font-size: 1.5rem; color: var(--text-main); }
+        .subtitle { font-size: 0.85rem; color: var(--text-sub); }
+
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+
+        .btn-sm {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-sm:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* JSON 上傳區域樣式 */
+        .upload-section {
+            background: var(--card-bg);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+            cursor: pointer;
+            position: relative;
+        }
+        .upload-section:hover, .upload-section.dragover {
+            border-color: var(--primary);
+            background: var(--dropzone-bg);
+        }
+        .upload-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; color: var(--text-main); }
+        .upload-hint { font-size: 0.8rem; color: var(--text-sub); }
+        #json-file-input { display: none; }
+
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .filter-select, .search-input { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; outline: none; }
+        .search-input { flex: 1; min-width: 180px; }
+        .filter-select:focus, .search-input:focus { border-color: var(--primary); }
+
+        .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: var(--card-bg); padding: 14px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.75rem; color: var(--text-sub); margin-top: 2px; }
+
+        .card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); padding: 24px; box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08); margin-bottom: 16px; min-height: 280px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .word-title { font-size: 2.2rem; font-weight: 800; color: var(--text-main); }
+        .word-meta { display: flex; gap: 8px; align-items: center; }
+        .tag { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+        .tag-level { background: #e0e7ff; color: #3730a3; }
+        [data-theme="dark"] .tag-level { background: rgba(56, 139, 253, 0.15); color: #58a6ff; border: 1px solid rgba(56, 139, 253, 0.4); }
+        .tag-pos { background: var(--sense-bg); color: var(--text-sub); border: 1px solid var(--border); }
+
+        .senses-list { display: flex; flex-direction: column; gap: 10px; }
+        .sense-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--sense-bg); border: 1px solid var(--sense-border); cursor: pointer; }
+        .sense-item.known { opacity: var(--sense-known-opacity); filter: grayscale(80%); }
+        [data-theme="dark"] .sense-item.known { background: #161b22; border-color: #21262d; }
+
+        .sense-key-badge { background: var(--border); color: var(--text-sub); font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-top: 2px; }
+        .sense-checkbox { width: 18px; height: 18px; margin-top: 3px; cursor: pointer; accent-color: var(--primary); }
+        .sense-content { flex: 1; }
+        .sense-def { font-weight: 600; font-size: 1rem; color: var(--text-main); margin-bottom: 4px; }
+        .sense-collocation { font-size: 0.85rem; color: var(--accent-blue); background: rgba(2, 132, 199, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; font-weight: 500; }
+        [data-theme="dark"] .sense-collocation { background: rgba(121, 192, 255, 0.12); }
+        .sense-example { font-size: 0.85rem; color: var(--text-sub); font-style: italic; line-height: 1.4; }
+
+        .controls { display: flex; gap: 10px; }
+        .btn { padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; }
+        .btn-prev { background: var(--border); color: var(--text-main); }
+        .btn-prev:hover { opacity: 0.9; }
+        .btn-next { background: var(--primary); color: white; flex: 1; }
+        [data-theme="dark"] .btn-next { color: #0d1117; font-weight: 700; }
+        .btn-next:hover { opacity: 0.9; }
+        .btn-export { background: #0f172a; color: white; }
+        [data-theme="dark"] .btn-export { background: #21262d; color: var(--text-main); border: 1px solid var(--border); }
+
+        .key-hint { margin-top: 12px; text-align: center; font-size: 0.8rem; color: var(--text-sub); }
+
+        /* Modal 彈窗控制 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); justify-content: center; align-items: center; padding: 16px; z-index: 100; }
+        .modal-content { background: var(--modal-content-bg); color: var(--text-main); padding: 24px; border-radius: 12px; width: 100%; max-width: 680px; max-height: 85vh; overflow-y: auto; border: 1px solid var(--border); }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-weight: bold; font-size: 1.1rem; }
+        pre { background: var(--pre-bg); color: var(--pre-text); padding: 14px; border-radius: 8px; font-size: 0.85rem; overflow-x: auto; white-space: pre-wrap; max-height: 280px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+        .btn-word { background: #2563eb; color: white; }
+
+        .meme-card { text-align: center; padding: 12px; }
+        .meme-badge { font-size: 2.5rem; margin-bottom: 8px; }
+        .meme-title { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+        .meme-msg { font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin: 12px 0; background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 8px; border: 1px dashed var(--primary); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>7000 單一字多義速刷系統</h1>
+            <div class="subtitle">大考中心 108 課綱詞彙表 ‧ 多義字高效複習</div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-sm" onclick="downloadJSONSchema()">📥 範例 JSON</button>
+            <button class="btn-sm" id="theme-btn" onclick="toggleTheme()">🌙 深色模式</button>
+        </div>
+    </header>
+
+    <!-- JSON 檔案上傳區塊 -->
+    <div class="upload-section" id="drop-zone" onclick="triggerFileInput()">
+        <input type="file" id="json-file-input" accept=".json" onchange="handleFileSelect(event)">
+        <div class="upload-title">📁 點擊或拖曳上傳單一 7000 單字 JSON 檔</div>
+        <div class="upload-hint" id="upload-status-hint">系統現正使用內建示範詞庫（上傳你自己的 JSON 可替換完整 7000 字）</div>
+    </div>
+
+    <div class="filter-bar">
+        <select class="filter-select" id="level-filter" onchange="applyFilters()">
+            <option value="all">所有級別 (Level All)</option>
+            <option value="1">Level 1</option>
+            <option value="2">Level 2</option>
+            <option value="3">Level 3</option>
+            <option value="4">Level 4</option>
+            <option value="5">Level 5</option>
+            <option value="6">Level 6</option>
+        </select>
+        <input type="text" class="search-input" id="search-input" placeholder="搜尋單字 (如: margin, address)..." oninput="applyFilters()">
+    </div>
+
+    <div class="dashboard">
+        <div class="stat-box">
+            <div class="stat-val" id="stat-current">0 / 0</div>
+            <div class="stat-label">當前視角進度</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" id="stat-retained">0</div>
+            <div class="stat-label">保留複習單字數</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" id="stat-unknown-senses">0</div>
+            <div class="stat-label">生疏意思總數</div>
+        </div>
+    </div>
+
+    <div class="card" id="word-card"></div>
+
+    <div class="controls">
+        <button class="btn btn-prev" onclick="prevWord()">← 上一個</button>
+        <button class="btn btn-next" onclick="nextWord()">下一個 (Space / Enter) →</button>
+        <button class="btn btn-export" onclick="showExport()">匯出盲點檔</button>
+    </div>
+
+    <div class="key-hint">
+        💡 快捷鍵提示：[Space / Enter] 下一個 ｜ [← / →] 上/下字 ｜ [1, 2, 3...] 快速勾選對應意思
+    </div>
+
+    <!-- 匯出 Modal -->
+    <div class="modal" id="export-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>個人盲點特訓清單導出</span>
+                <button style="border:none; background:none; cursor:pointer; color:var(--text-main); font-size:1.2rem;" onclick="closeExport()">✕</button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">選擇導出方式：排版 Word 筆記本，或 Anki 記憶卡片檔。</p>
+            <pre id="export-preview"></pre>
+            <div class="modal-actions">
+                <button class="btn btn-word" onclick="downloadWordDocx()">匯出 Word 筆記 (.docx)</button>
+                <button class="btn btn-next" onclick="downloadTXT()">匯出 Anki 文字檔 (.txt)</button>
+                <button class="btn btn-prev" onclick="resetAllProgress()">重置勾選進度</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 67梗鼓勵彈窗 Modal -->
+    <div class="modal" id="meme-modal">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="meme-card">
+                <div class="meme-badge">🔥 67 達成！</div>
+                <div class="meme-title" id="meme-title">累計刷新 67 個單字！</div>
+                <div class="meme-msg" id="meme-msg">刷滿67單！太流氣了，繼續677777！</div>
+                <button class="btn btn-next" style="width: 100%; margin-top: 12px;" onclick="closeMemeModal()">繼續流氣刷字 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 預設預覽詞庫 (當尚未上傳完整 7000 字 JSON 時顯示)
+        const defaultWordsData = [
+            {
+                id: 1, word: "margin", level: 4, pos: "n.", label: "【C】",
+                senses: [
+                    { id: "margin_1", pos: "n.", meaning: "頁邊空白處", collocation: "in the margins", example: "Students wrote notes in the margins.", known: false },
+                    { id: "margin_2", pos: "n.", meaning: "贏面差距；利潤", collocation: "by a narrow/wide margin", example: "The party won by a narrow margin.", known: false }
+                ]
+            },
+            {
+                id: 2, word: "green", level: 1, pos: "adj./n./v.", label: "【adj.】",
+                senses: [
+                    { id: "green_1", pos: "adj.", meaning: "綠色的", collocation: "green light / green tea", example: "She was wearing a green dress.", known: false },
+                    { id: "green_2", pos: "adj.", meaning: "缺乏經驗的；菜鳥的（高頻）", collocation: "be green to sth", example: "I'm a bit green to this job, so please bear with me.", known: false },
+                    { id: "green_3", pos: "adj.", meaning: "嫉妒的", collocation: "green with envy", example: "He was green with envy when he saw the result.", known: false }
+                ]
+            },
+            {
+                id: 3, word: "address", level: 2, pos: "v./n.", label: "【v./C】",
+                senses: [
+                    { id: "address_1", pos: "n.", meaning: "地址", collocation: "home address", example: "Write your address on this form.", known: false },
+                    { id: "address_2", pos: "v.", meaning: "處理；應對（議題、問題）（高頻）", collocation: "address the issue", example: "The government must address the problem immediately.", known: false },
+                    { id: "address_3", pos: "v.", meaning: "向…演講；對…說話", collocation: "address the audience", example: "The mayor addressed the audience.", known: false }
+                ]
+            }
+        ];
+
+        const memeQuotes = [
+            "刷滿67單！太流氣了，繼續677777！",
+            "67這個數字不簡單，你今天簡直太六七！",
+            "第67個單字達陣！保持這個67氣勢！",
+            "太強了！累積67個單字，氣場67爆表！",
+            "流氣滿點！67單字斬，學測直接穩了！"
+        ];
+
+        let wordsData = [];
+        let filteredWords = [];
+        let currentIndex = 0;
+        let browsedCount = parseInt(localStorage.getItem("ceec_browsed_count")) || 0;
+
+        // 初始化資料
+        function initData() {
+            const savedData = localStorage.getItem("ceec_vocab_7000_data");
+            if (savedData) {
+                try {
+                    wordsData = JSON.parse(savedData);
+                    document.getElementById("upload-status-hint").innerText = `✅ 已成功載入自訂 JSON 詞庫，共收錄 ${wordsData.length} 個單字！`;
+                } catch (e) {
+                    console.error("Local Storage parse error", e);
+                    wordsData = defaultWordsData;
+                }
+            } else {
+                wordsData = defaultWordsData;
+            }
+            applyFilters();
+        }
+
+        // 主題控制
+        function initTheme() {
+            const savedTheme = localStorage.getItem("ceec_theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            document.getElementById("theme-btn").innerText = savedTheme === "dark" ? "☀️ 淺色模式" : "🌙 深色模式";
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("ceec_theme", newTheme);
+            document.getElementById("theme-btn").innerText = newTheme === "dark" ? "☀️ 淺色模式" : "🌙 深色模式";
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem("ceec_vocab_7000_data", JSON.stringify(wordsData));
+            } catch (e) {
+                console.warn("Storage full or blocked", e);
+            }
+        }
+
+        /* JSON 檔案上傳與處理 */
+        function triggerFileInput() {
+            document.getElementById("json-file-input").click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            processJSONFile(file);
+        }
+
+        // 拖曳上傳
+        const dropZone = document.getElementById("drop-zone");
+        dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("dragover"); });
+        dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("dragover");
+            if (e.dataTransfer.files.length > 0) {
+                processJSONFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function processJSONFile(file) {
+            if (!file.name.endsWith(".json")) {
+                alert("請上傳 .json 格式的檔案！");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let parsed = JSON.parse(e.target.result);
+                    // 支援可以直接是一陣列 [...] 或包含 { "words": [...] }
+                    let rawList = Array.isArray(parsed) ? parsed : (parsed.words || parsed.data || []);
+                    
+                    if (!Array.isArray(rawList) || rawList.length === 0) {
+                        alert("JSON 檔案格式不符合規範，請確認包含單字陣列！");
+                        return;
+                    }
+
+                    // 格式標準化與資料補全
+                    wordsData = rawList.map((item, idx) => ({
+                        id: item.id || idx + 1,
+                        word: item.word || "Unknown",
+                        level: item.level || 1,
+                        pos: item.pos || "",
+                        label: item.label || "",
+                        senses: Array.isArray(item.senses) ? item.senses.map((s, sIdx) => ({
+                            id: s.id || `s_${idx}_${sIdx}`,
+                            pos: s.pos || item.pos || "",
+                            meaning: s.meaning || "",
+                            collocation: s.collocation || "—",
+                            example: s.example || "",
+                            known: s.known === true
+                        })) : []
+                    }));
+
+                    saveData();
+                    currentIndex = 0;
+                    applyFilters();
+                    document.getElementById("upload-status-hint").innerText = `🎉 成功載入 ${file.name}，包含 ${wordsData.length} 個單字！`;
+                    alert(`上傳成功！已順利載入 ${wordsData.length} 個單字。`);
+                } catch (err) {
+                    alert("JSON 解析失敗，請檢查檔案格式是否合規：" + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function downloadJSONSchema() {
+            const sampleData = defaultWordsData;
+            const blob = new Blob([JSON.stringify(sampleData, null, 2)], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "7000_words_schema_sample.json";
+            link.click();
+        }
+
+        /* 篩選與卡片渲染 */
+        function applyFilters() {
+            const levelVal = document.getElementById("level-filter").value;
+            const searchVal = document.getElementById("search-input").value.toLowerCase().trim();
+            filteredWords = wordsData.filter(w => {
+                const matchLevel = (levelVal === "all") || (w.level.toString() === levelVal);
+                const matchSearch = w.word.toLowerCase().includes(searchVal);
+                return matchLevel && matchSearch;
+            });
+            currentIndex = 0;
+            renderCard();
+        }
+
+        function renderCard() {
+            const cardEl = document.getElementById("word-card");
+            if (filteredWords.length === 0) {
+                cardEl.innerHTML = `<div style="text-align:center; padding:60px 20px; color:var(--text-sub);">
+                    <div style="font-size:2rem; margin-bottom:10px;">🔍</div>
+                    未找到符合條件的單字。<br>請嘗試切換級別、清除搜尋，或是上傳包含完整單字的 JSON 檔。
+                </div>`;
+                updateStats();
+                return;
+            }
+            const current = filteredWords[currentIndex];
+            let sensesHtml = current.senses.map((sense, sIndex) => `
+                <div class="sense-item ${sense.known ? 'known' : ''}" onclick="toggleSenseDirect(${sIndex})">
+                    <span class="sense-key-badge">${sIndex + 1}</span>
+                    <input type="checkbox" class="sense-checkbox" ${sense.known ? 'checked' : ''} onclick="event.stopPropagation();" onchange="toggleSense('${current.word}', ${sIndex}, this.checked)">
+                    <div class="sense-content">
+                        <div class="sense-def"><span style="color:var(--primary); font-size:0.85rem; font-weight:bold;">[${sense.pos}]</span> ${sense.meaning}</div>
+                        ${sense.collocation ? `<div class="sense-collocation">常用搭配：${sense.collocation}</div>` : ''}
+                        ${sense.example ? `<div class="sense-example">"${sense.example}"</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            cardEl.innerHTML = `
+                <div class="card-header">
+                    <div class="word-title">${current.word} <span style="font-size:1.1rem; color:var(--text-sub); font-weight:normal;">${current.label || ''}</span></div>
+                    <div class="word-meta">
+                        <span class="tag tag-level">Level ${current.level}</span>
+                        ${current.pos ? `<span class="tag tag-pos">${current.pos}</span>` : ''}
+                    </div>
+                </div>
+                <div class="senses-list">${sensesHtml}</div>
+            `;
+            updateStats();
+        }
+
+        function toggleSense(wordName, senseIndex, isChecked) {
+            const wordObj = wordsData.find(w => w.word === wordName);
+            if (wordObj && wordObj.senses[senseIndex]) {
+                wordObj.senses[senseIndex].known = isChecked;
+                saveData();
+                renderCard();
+            }
+        }
+
+        function toggleSenseDirect(senseIndex) {
+            const current = filteredWords[currentIndex];
+            if (current && current.senses[senseIndex]) {
+                current.senses[senseIndex].known = !current.senses[senseIndex].known;
+                saveData();
+                renderCard();
+            }
+        }
+
+        function checkEncouragementTrigger() {
+            browsedCount++;
+            localStorage.setItem("ceec_browsed_count", browsedCount);
+            if (browsedCount > 0 && browsedCount % 67 === 0) {
+                trigger67MemeModal();
+            }
+        }
+
+        function trigger67MemeModal() {
+            const randomMsg = memeQuotes[Math.floor(Math.random() * memeQuotes.length)];
+            document.getElementById("meme-title").innerText = `累計刷新 ${browsedCount} 個單字！`;
+            document.getElementById("meme-msg").innerText = randomMsg;
+            document.getElementById("meme-modal").style.display = "flex";
+        }
+
+        function closeMemeModal() {
+            document.getElementById("meme-modal").style.display = "none";
+        }
+
+        function nextWord() { 
+            if (filteredWords.length === 0) return; 
+            currentIndex = (currentIndex + 1) % filteredWords.length; 
+            renderCard(); 
+            checkEncouragementTrigger();
+        }
+
+        function prevWord() { 
+            if (filteredWords.length === 0) return; 
+            currentIndex = (currentIndex - 1 + filteredWords.length) % filteredWords.length; 
+            renderCard(); 
+        }
+
+        function updateStats() {
+            document.getElementById("stat-current").innerText = filteredWords.length > 0 ? `${currentIndex + 1} / ${filteredWords.length}` : `0 / 0`;
+            let retainedWordsCount = 0, unknownSensesTotal = 0;
+            wordsData.forEach(w => {
+                const unknownSenses = w.senses.filter(s => !s.known);
+                if (unknownSenses.length > 0) {
+                    retainedWordsCount++;
+                    unknownSensesTotal += unknownSenses.length;
+                }
+            });
+            document.getElementById("stat-retained").innerText = retainedWordsCount;
+            document.getElementById("stat-unknown-senses").innerText = unknownSensesTotal;
+        }
+
+        function showExport() {
+            let lines = [];
+            wordsData.forEach(w => {
+                const unknownSenses = w.senses.filter(s => !s.known);
+                if (unknownSenses.length === 0) return;
+                lines.push(`【${w.word} ${w.label || ''}】 (Level ${w.level})`);
+                unknownSenses.forEach(s => {
+                    lines.push(`  • [${s.pos}] ${s.meaning}\n    搭配: ${s.collocation || '—'}\n    例句: ${s.example || '—'}`);
+                });
+            });
+            document.getElementById("export-preview").innerText = lines.join("\n\n") || "太棒了！目前所有單字意思均已標記掌握！";
+            document.getElementById("export-modal").style.display = "flex";
+        }
+
+        function closeExport() { document.getElementById("export-modal").style.display = "none"; }
+
+        async function downloadWordDocx() {
+            if (typeof docx === 'undefined') {
+                alert("Docx 套件載入中，請稍後再試...");
+                return;
+            }
+
+            const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType } = docx;
+
+            const retainedData = wordsData.map(w => ({
+                ...w,
+                retained_senses: w.senses.filter(s => !s.known)
+            })).filter(w => w.retained_senses.length > 0);
+
+            if (retainedData.length === 0) {
+                alert("目前沒有未掌握的盲點單字！");
+                return;
+            }
+
+            const rows = [
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            width: { size: 30, type: WidthType.PERCENTAGE },
+                            children: [new Paragraph({ children: [new TextRun({ text: "單字 / 級別", bold: true, color: "FFFFFF" })] })],
+                            shading: { fill: "1E3A8A" }
+                        }),
+                        new TableCell({
+                            width: { size: 70, type: WidthType.PERCENTAGE },
+                            children: [new Paragraph({ children: [new TextRun({ text: "未掌握意思 ‧ 搭配詞 ‧ 經典例句", bold: true, color: "FFFFFF" })] })],
+                            shading: { fill: "1E3A8A" }
+                        })
+                    ]
+                })
+            ];
+
+            retainedData.forEach((item, idx) => {
+                const bgHex = idx % 2 === 1 ? "F8FAFC" : "FFFFFF";
+
+                const leftParagraphs = [
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: item.word + " ", bold: true, size: 26, color: "0F172A" }),
+                            new TextRun({ text: (item.label || "") + "\n", bold: true, size: 20, color: "1E3A8A" }),
+                            new TextRun({ text: `Level ${item.level} | ${item.pos}`, size: 18, color: "64748B" })
+                        ]
+                    })
+                ];
+
+                const rightParagraphs = [];
+                item.retained_senses.forEach(sense => {
+                    rightParagraphs.push(
+                        new Paragraph({
+                            children: [
+                                new TextRun({ text: `• [${sense.pos}] `, bold: true, color: "1E3A8A", size: 20 }),
+                                new TextRun({ text: `${sense.meaning}\n`, bold: true, color: "0F172A", size: 20 }),
+                                new TextRun({ text: "   搭配：", color: "64748B", size: 18 }),
+                                new TextRun({ text: `${sense.collocation || '—'}\n`, bold: true, color: "0284C7", size: 18 }),
+                                new TextRun({ text: "   例句：", color: "64748B", size: 18 }),
+                                new TextRun({ text: `“${sense.example || '—'}”`, italics: true, color: "334155", size: 18 })
+                            ]
+                        })
+                    );
+                });
+
+                rows.push(
+                    new TableRow({
+                        children: [
+                            new TableCell({ children: leftParagraphs, shading: { fill: bgHex } }),
+                            new TableCell({ children: rightParagraphs, shading: { fill: bgHex } })
+                        ]
+                    })
+                );
+            });
+
+            const doc = new Document({
+                sections: [{
+                    children: [
+                        new Paragraph({ children: [new TextRun({ text: "7000 單一字多義 ‧ 個人盲點特訓筆記本", bold: true, size: 36, color: "1E3A8A" })] }),
+                        new Paragraph({ children: [new TextRun({ text: "大考中心參考詞彙表 ｜ 盲點重點複習筆記\n\n", size: 20, color: "64748B" })] }),
+                        new Table({ rows: rows, width: { size: 100, type: WidthType.PERCENTAGE } })
+                    ]
+                }]
+            });
+
+            const blob = await Packer.toBlob(doc);
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "7000_vocab_blindspots.docx";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function downloadTXT() {
+            let lines = [];
+            wordsData.forEach(w => {
+                const unknownSenses = w.senses.filter(s => !s.known);
+                if (unknownSenses.length === 0) return;
+                const front = `${w.word} ${w.label || ''}`.trim();
+                const backHtml = unknownSenses.map(s => `[${s.pos}] ${s.meaning} (例: ${s.example || '無'})`).join("<br>");
+                lines.push(`${front}\t${backHtml}`);
+            });
+
+            const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "anki_7000_vocab.txt";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function resetAllProgress() {
+            if (confirm("確定要重置所有單字的勾選狀態與瀏覽計數嗎？")) {
+                wordsData.forEach(w => w.senses.forEach(s => s.known = false));
+                browsedCount = 0;
+                localStorage.setItem("ceec_browsed_count", 0);
+                saveData();
+                renderCard();
+                closeExport();
+            }
+        }
+
+        document.addEventListener("keydown", function(e) {
+            if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "SELECT") return;
+            if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); nextWord(); }
+            else if (e.code === "ArrowLeft") prevWord();
+            else if (e.code === "ArrowRight") nextWord();
+            else if (e.key >= "1" && e.key <= "9") toggleSenseDirect(parseInt(e.key) - 1);
+        });
+
+        // 啟動系統
+        initTheme();
+        initData();
+    </script>
+</body>
+</html>
