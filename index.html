@@ -27,7 +27,6 @@
             --sense-known-opacity: 0.45;
         }
 
-        /* 深色模式設計 (GitHub / Slate Dark Style) */
         [data-theme="dark"] {
             --bg: #0d1117;
             --card-bg: #161b22;
@@ -53,7 +52,6 @@
         h1 { font-size: 1.5rem; color: var(--text-main); }
         .subtitle { font-size: 0.85rem; color: var(--text-sub); }
 
-        /* 主題切換按鈕 */
         .theme-toggle-btn {
             padding: 6px 12px;
             border-radius: 20px;
@@ -86,7 +84,6 @@
         .senses-list { display: flex; flex-direction: column; gap: 12px; }
         .sense-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--sense-bg); border: 1px solid var(--sense-border); cursor: pointer; }
         
-        /* 已勾選意思的灰化樣式 */
         .sense-item.known { opacity: var(--sense-known-opacity); filter: grayscale(80%); }
         [data-theme="dark"] .sense-item.known { background: #161b22; border-color: #21262d; }
 
@@ -110,7 +107,6 @@
 
         .key-hint { margin-top: 12px; text-align: center; font-size: 0.8rem; color: var(--text-sub); }
 
-        /* 模態視窗 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); justify-content: center; align-items: center; padding: 16px; z-index: 100; }
         .modal-content { background: var(--modal-content-bg); color: var(--text-main); padding: 24px; border-radius: 12px; width: 100%; max-width: 680px; max-height: 85vh; overflow-y: auto; border: 1px solid var(--border); }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-weight: bold; }
@@ -118,28 +114,22 @@
         .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
         .btn-word { background: #2563eb; color: white; }
 
-        /* 67 梗鼓勵視窗特別樣式 */
         .encouragement-card { text-align: center; padding: 12px; }
         .meme-badge { font-size: 2.5rem; margin-bottom: 8px; }
         .meme-title { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
         .meme-msg { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 12px 0; background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 8px; border: 1px dashed var(--primary); }
 
-        /* 載入遮罩 */
-        #loadingOverlay {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px);
-            z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;
-        }
-        .spinner { width: 44px; height: 44px; border: 4px solid #60a5fa; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+        #loadingOverlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .spinner { width: 48px; height: 48px; border: 4px solid #60a5fa; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <!-- 載入中遮罩 -->
     <div id="loadingOverlay">
         <div class="spinner"></div>
         <p style="font-size: 1.1rem; font-weight: 600;">正在載入 7000 單字庫...</p>
-        <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 6px;" id="loadingSubtext">讀取 words_7000.json 中</p>
+        <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 6px;" id="loadingSubtext">載入 words_7000.json 中</p>
     </div>
 
     <header>
@@ -187,10 +177,9 @@
     </div>
 
     <div class="key-hint">
-        💡 快捷鍵操作：[Space / Enter / →] 下一個單字 ｜ [←] 上一個 ｜ [1, 2, 3...] 切換對應意思勾選
+        💡 快捷鍵操作：[Space / Enter / →] 下一個單字 ｜ [←] 上一個 ｜ [1, 2, 3...] 快速切換對應意思勾選狀態
     </div>
 
-    <!-- 匯出 Modal -->
     <div class="modal" id="export-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -207,7 +196,6 @@
         </div>
     </div>
 
-    <!-- 67 梗鼓勵彈窗 Modal -->
     <div class="modal" id="meme-modal">
         <div class="modal-content" style="max-width: 420px;">
             <div class="encouragement-card">
@@ -220,7 +208,17 @@
     </div>
 
     <script>
-        // 67 梗鼓勵詞庫
+        let wordsData = [];
+        let filteredWords = [];
+        let knownSenseIds = new Set();
+        let currentIndex = 0;
+        let browsedCount = 0;
+        let searchDebounceTimer = null;
+
+        const STORAGE_KEY_KNOWN = 'ceec_known_sense_ids_v1';
+        const STORAGE_KEY_BROWSED = 'ceec_browsed_count_v1';
+        const STORAGE_KEY_THEME = 'ceec_theme_v5_pure';
+
         const memeQuotes = [
             "刷滿67單！太流氣了，繼續677777！",
             "67這個數字不簡單，你今天簡直太六七！",
@@ -229,20 +227,10 @@
             "流氣滿點！67單字斬，學測直接穩了！"
         ];
 
-        // 核心狀態變數
-        let wordsData = [];              // 從 JSON 載入的完整單字庫
-        let filteredWords = [];          // 篩選過後的單字
-        let knownSenseIds = new Set();   // 僅儲存「已掌握的意思 ID」
-        let currentIndex = 0;
-        let browsedCount = 0;
-        let searchDebounceTimer = null;
-
-        const STORAGE_KEY_KNOWN = "ceec_known_sense_ids_v1";
-        const STORAGE_KEY_BROWSED = "ceec_browsed_count_v1";
-        const STORAGE_KEY_THEME = "ceec_theme_v5_pure";
-
-        // 初始化
         document.addEventListener('DOMContentLoaded', async () => {
+            // 清除舊版將整份單字硬存進 localStorage 的暫存資料
+            localStorage.removeItem("ceec_vocab_data_v5_pure");
+            
             initTheme();
             loadProgress();
             await fetchWordsData();
@@ -263,7 +251,6 @@
             document.getElementById("theme-btn").innerText = newTheme === "dark" ? "☀️ 淺色模式" : "🌙 深色模式";
         }
 
-        // 從 localStorage 載入已勾選 ID (極輕量)
         function loadProgress() {
             try {
                 const saved = localStorage.getItem(STORAGE_KEY_KNOWN);
@@ -275,44 +262,41 @@
             }
         }
 
-        // 儲存進度 (不儲存例句等重度文字，永遠不卡爆 5MB 限額)
         function saveProgress() {
             try {
                 localStorage.setItem(STORAGE_KEY_KNOWN, JSON.stringify(Array.from(knownSenseIds)));
                 localStorage.setItem(STORAGE_KEY_BROWSED, browsedCount);
             } catch (e) {
-                console.error("進度儲存失敗", e);
+                console.error("儲存進度失敗", e);
             }
         }
 
-        // 非同步 Fetch 載入 words_7000.json
         async function fetchWordsData() {
             const overlay = document.getElementById('loadingOverlay');
             try {
-                const res = await fetch('words_7000.json');
-                if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
-                wordsData = await res.json();
+                const response = await fetch('words_7000.json');
+                if (!response.ok) throw new Error(`HTTP 錯誤: ${response.status}`);
+                wordsData = await response.json();
 
-                // 確保每個 sense 有唯一的 ID
-                wordsData.forEach(w => {
-                    w.senses.forEach((s, idx) => {
-                        if (!s.id) s.id = `${w.word}_${idx + 1}`;
+                wordsData.forEach((w) => {
+                    w.senses.forEach((s, sIdx) => {
+                        if (!s.id) s.id = `${w.word}_${sIdx + 1}`;
                     });
                 });
 
-                // 隱藏加載畫面
                 overlay.style.opacity = '0';
                 setTimeout(() => overlay.style.display = 'none', 300);
 
                 applyFilters();
             } catch (error) {
-                console.error('載入 words_7000.json 失敗:', error);
-                document.getElementById('loadingSubtext').innerText = '❌ 載入失敗！請確認 words_7000.json 檔名是否正確且已上傳。';
-                document.getElementById('loadingSubtext').style.color = '#f87171';
+                console.error('載入失敗:', error);
+                wordsData = [];
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 300);
+                applyFilters();
             }
         }
 
-        // 250ms 防抖搜尋
         function initSearchDebounce() {
             const input = document.getElementById('search-input');
             input.addEventListener('input', () => {
@@ -323,7 +307,6 @@
             });
         }
 
-        // 篩選單字
         function applyFilters() {
             const levelVal = document.getElementById("level-filter").value;
             const searchVal = document.getElementById("search-input").value.toLowerCase().trim();
@@ -335,9 +318,9 @@
                 if (!searchVal) return true;
                 const matchHeadword = w.word.toLowerCase().includes(searchVal);
                 const matchSense = w.senses.some(s => {
-                    const text = (s.chinese || s.meaning || '').toLowerCase();
-                    const col = (s.collocation || '').toLowerCase();
-                    return text.includes(searchVal) || col.includes(searchVal);
+                    const meaningText = s.chinese || s.meaning || '';
+                    return meaningText.toLowerCase().includes(searchVal) ||
+                           (s.collocation && s.collocation.toLowerCase().includes(searchVal));
                 });
                 return matchHeadword || matchSense;
             });
@@ -346,11 +329,10 @@
             renderCard();
         }
 
-        // 渲染 V6 字卡介面
         function renderCard() {
             const cardEl = document.getElementById("word-card");
             if (filteredWords.length === 0) {
-                cardEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub);">找不到符合條件的單字</div>`;
+                cardEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub);">⚠️ 目前沒有單字資料，請確認 <code>words_7000.json</code> 檔案已正確上傳。</div>`;
                 updateStats();
                 return;
             }
@@ -359,13 +341,13 @@
 
             let sensesHtml = current.senses.map((sense, sIndex) => {
                 const isKnown = knownSenseIds.has(sense.id);
-                const defText = sense.chinese || sense.meaning || '';
+                const meaningText = sense.chinese || sense.meaning || '';
                 return `
                     <div class="sense-item ${isKnown ? 'known' : ''}" onclick="toggleSenseDirect(${sIndex})">
                         <span class="sense-key-badge">${sIndex + 1}</span>
                         <input type="checkbox" class="sense-checkbox" ${isKnown ? 'checked' : ''} onclick="event.stopPropagation();" onchange="toggleSenseById('${sense.id}', this.checked)">
                         <div class="sense-content">
-                            <div class="sense-def"><span style="color:var(--primary); font-size:0.85rem;">[${sense.pos}]</span> ${defText}</div>
+                            <div class="sense-def"><span style="color:var(--primary); font-size:0.85rem;">[${sense.pos}]</span> ${meaningText}</div>
                             ${sense.collocation ? `<div class="sense-collocation">常用搭配：${sense.collocation}</div>` : ''}
                             ${sense.example ? `<div class="sense-example">"${sense.example}"</div>` : ''}
                         </div>
@@ -461,7 +443,6 @@
             document.getElementById("stat-unknown-senses").innerText = unknownSensesTotal;
         }
 
-        // 顯示匯出預覽 Modal
         function showExport() {
             let lines = [];
             wordsData.forEach(w => {
@@ -469,8 +450,8 @@
                 if (unknownSenses.length === 0) return;
                 lines.push(`【${w.word} ${w.label || ''}】 (Level ${w.level})`);
                 unknownSenses.forEach(s => {
-                    const defText = s.chinese || s.meaning || '';
-                    lines.push(`  • [${s.pos}] ${defText}${s.collocation ? '\n    搭配: ' + s.collocation : ''}${s.example ? '\n    例句: ' + s.example : ''}`);
+                    const meaningText = s.chinese || s.meaning || '';
+                    lines.push(`  • [${s.pos}] ${meaningText}${s.collocation ? '\n    搭配: ' + s.collocation : ''}${s.example ? '\n    例句: ' + s.example : ''}`);
                 });
             });
             document.getElementById("export-preview").innerText = lines.join("\n\n") || "太棒了！所有單字皆已掌握！";
@@ -481,7 +462,6 @@
             document.getElementById("export-modal").style.display = "none";
         }
 
-        // 匯出 Word 檔
         async function downloadWordDocx() {
             if (typeof docx === 'undefined') {
                 alert("Docx 套件載入中，請稍後再試...");
@@ -532,10 +512,10 @@
 
                 const rightParagraphs = [];
                 item.retained_senses.forEach(sense => {
-                    const defText = sense.chinese || sense.meaning || '';
+                    const meaningText = sense.chinese || sense.meaning || '';
                     const children = [
                         new TextRun({ text: `• [${sense.pos}] `, bold: true, color: "1E3A8A", size: 20 }),
-                        new TextRun({ text: `${defText}\n`, bold: true, color: "0F172A", size: 20 })
+                        new TextRun({ text: `${meaningText}\n`, bold: true, color: "0F172A", size: 20 })
                     ];
                     if (sense.collocation) {
                         children.push(new TextRun({ text: "   搭配：", color: "64748B", size: 18 }));
@@ -570,17 +550,9 @@
             });
 
             const blob = await Packer.toBlob(doc);
-            if (window.saveAs) {
-                saveAs(blob, `CEEC_Vocab_Notebook_${new Date().toISOString().slice(0,10)}.docx`);
-            } else {
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = `CEEC_Vocab_Notebook_${new Date().toISOString().slice(0,10)}.docx`;
-                link.click();
-            }
+            saveAs(blob, `CEEC_Vocab_Notebook_${new Date().toISOString().slice(0,10)}.docx`);
         }
 
-        // 匯出 Anki TXT
         function downloadTXT() {
             let lines = [];
             wordsData.forEach(w => {
@@ -588,19 +560,14 @@
                 if (unknownSenses.length === 0) return;
                 const front = `${w.word} ${w.label || ''}`.trim();
                 const backHtml = unknownSenses.map(s => {
-                    const defText = s.chinese || s.meaning || '';
-                    return `[${s.pos}] ${defText} ${s.example ? '<i>' + s.example + '</i>' : ''}`;
+                    const meaningText = s.chinese || s.meaning || '';
+                    return `[${s.pos}] ${meaningText} ${s.example ? '<i>' + s.example + '</i>' : ''}`;
                 }).join("<br>");
                 lines.push(`${front}\t${backHtml}`);
             });
 
             const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8;" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `anki_ceec_vocab_${new Date().toISOString().slice(0,10)}.txt`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            saveAs(blob, `anki_ceec_vocab_${new Date().toISOString().slice(0,10)}.txt`);
         }
 
         function resetAllProgress() {
@@ -613,7 +580,6 @@
             }
         }
 
-        // 快捷鍵邏輯
         document.addEventListener("keydown", function(e) {
             if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "SELECT") return;
             
