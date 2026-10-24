@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大考中心 7000 單字一字多義速刷系統 (高效優化版)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- docx.js (Word 匯出) -->
+  <script src="https://unpkg.com/docx@8.2.2/build/index.umd.js"></script>
+  <!-- FileSaver.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- 載入中遮罩 -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center text-white transition-opacity duration-300">
+    <div class="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <p class="text-lg font-medium tracking-wide">正在載入 7000 單字庫...</p>
+    <p class="text-sm text-slate-300 mt-1" id="loadingSubtext">載入 words_7000.json 中</p>
+  </div>
+
+  <!-- 頂部導覽與統計標題欄 -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <span>📚 大考 7000 單字速刷系統</span>
+          <span class="text-xs font-normal bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">CEEC Level 1-6</span>
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">點擊核取方塊即標記為「已掌握」，進度自動即時儲存</p>
+      </div>
+
+      <!-- 右側統計數字與動作按鈕 -->
+      <div class="flex items-center gap-3">
+        <div class="bg-slate-100 px-3 py-1.5 rounded-lg text-right">
+          <div class="text-xs text-slate-500">剩餘未掌握字義</div>
+          <div class="text-lg font-extrabold text-blue-600" id="statUnmasteredCount">0</div>
+        </div>
+        <div class="bg-slate-100 px-3 py-1.5 rounded-lg text-right">
+          <div class="text-xs text-slate-500">整體掌握率</div>
+          <div class="text-lg font-extrabold text-emerald-600" id="statProgressPercent">0%</div>
+        </div>
+        <button onclick="openExportModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm">
+          <span>📄 匯出 Word 盲點本</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要內容區 -->
+  <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 flex-1 w-full">
+    
+    <!-- 控制面板：級別切換 + 250ms 防抖搜尋 -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
+      <!-- 級別篩選按鈕組 -->
+      <div class="flex flex-wrap gap-1.5 w-full md:w-auto" id="levelFilterGroup">
+        <button onclick="filterLevel('all')" class="level-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-blue-600 text-white" data-level="all">全部 Level</button>
+        <button onclick="filterLevel(1)" class="level-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-slate-100 hover:bg-slate-200 text-slate-700" data-level="1">L1</button>
+        <button onclick="filterLevel(2)" class="level-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-slate-100 hover:bg-slate-200 text-slate-700" data-level="2">L2</button>
+        <button onclick="filterLevel(3)" class="level-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-slate-100 hover:bg-slate-200 text-slate-700" data-level="3">L3</button>
+        <button onclick="filterLevel(4)" class="level-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-slate-100 hover:bg-slate-200 text-slate-700" data-level="4">L4</button>
+        <button onclick="filterLevel(5)" class="level-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-slate-100 hover:bg-slate-200 text-slate-700" data-level="5">L5</button>
+        <button onclick="filterLevel(6)" class="level-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-slate-100 hover:bg-slate-200 text-slate-700" data-level="6">L6</button>
+      </div>
+
+      <!-- 防抖搜尋框 -->
+      <div class="relative w-full md:w-80">
+        <input type="text" id="searchInput" placeholder="搜尋單字、中文或搭配詞..." 
+               class="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <span class="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
+      </div>
+    </div>
+
+    <!-- 單字清單容器 -->
+    <div id="wordListContainer" class="grid grid-cols-1 gap-4">
+      <!-- 由 JS 動態渲染 -->
+    </div>
+  </main>
+
+  <!-- 匯出 Modal -->
+  <div id="exportModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+      <h3 class="text-lg font-bold text-slate-900 mb-2">📄 匯出盲點單字本 (.docx)</h3>
+      <p class="text-sm text-slate-500 mb-4">系統將抓取您 **尚未勾選掌握** 的單字與字義，匯出為方便列印或複習的 Word 表格。</p>
+      
+      <div class="space-y-4 mb-6">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">匯出範圍</label>
+          <select id="exportScope" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500">
+            <option value="current">目前篩選的 Level 級別</option>
+            <option value="all">所有 Level (1-6 級全部盲點)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">匯出數量上限 (防止記憶體卡死)</label>
+          <select id="exportLimit" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500">
+            <option value="100">前 100 筆盲點字義 (推薦，生成快速)</option>
+            <option value="200">前 200 筆盲點字義</option>
+            <option value="500">前 500 筆盲點字義</option>
+            <option value="0">不限制 (若筆數過多可能耗時較久)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button onclick="closeExportModal()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">取消</button>
+        <button onclick="executeWordExport()" class="px-4 py-2 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm">開始匯出</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ----------------------------------------------------
+    // 全域變數狀態
+    // ----------------------------------------------------
+    let wordsData = [];           // 從 JSON 載入的完整單字庫
+    let knownSenseIds = new Set();// 僅記錄已掌握的意思 ID (節省 localStorage 空間)
+    let currentLevel = 'all';     // 當前篩選 Level
+    let currentSearchTerm = '';   // 當前搜尋關鍵字
+    let searchDebounceTimer = null; // 搜尋 Debounce 計時器
+
+    const STORAGE_KEY = 'ceec_known_sense_ids_v1';
+
+    // ----------------------------------------------------
+    // 1. 初始化與資料載入
+    // ----------------------------------------------------
+    document.addEventListener('DOMContentLoaded', async () => {
+      loadSavedProgress();
+      await fetchWordsData();
+      initSearchDebounce();
+    });
+
+    // 從 localStorage 載入已掌握 ID 集合
+    function loadSavedProgress() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const arr = JSON.parse(saved);
+          knownSenseIds = new Set(arr);
+        }
+      } catch (e) {
+        console.error("無法讀取進度，已自動重設", e);
+        knownSenseIds = new Set();
+      }
+    }
+
+    // 儲存已掌握 ID 集合 (極輕量)
+    function saveProgress() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(knownSenseIds)));
+      } catch (e) {
+        alert("儲存進度時發生錯誤 (儲存空間可能不足)");
+      }
+    }
+
+    // 非同步 Fetch 載入 7000 字 JSON 檔
+    async function fetchWordsData() {
+      const overlay = document.getElementById('loadingOverlay');
+      try {
+        const response = await fetch('words_7000.json');
+        if (!response.ok) throw new Error(`HTTP 錯誤: ${response.status}`);
+        wordsData = await response.json();
+        
+        // 隱藏 Loading 遮罩
+        overlay.classList.add('opacity-0');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+
+        // 首次渲染與統計
+        updateStats();
+        renderWords();
+
+      } catch (error) {
+        console.error('載入 words_7000.json 失敗:', error);
+        document.getElementById('loadingSubtext').innerText = '❌ 載入失敗！請確認 words_7000.json 是否存在或伺服器環境。';
+        document.getElementById('loadingSubtext').classList.add('text-red-400');
+      }
+    }
+
+    // ----------------------------------------------------
+    // 2. 搜尋 Debounce (250ms) 優化
+    // ----------------------------------------------------
+    function initSearchDebounce() {
+      const input = document.getElementById('searchInput');
+      input.addEventListener('input', (e) => {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+          currentSearchTerm = e.target.value.trim().toLowerCase();
+          renderWords();
+        }, 250); // 停止打字 250ms 後執行搜尋
+      });
+    }
+
+    // ----------------------------------------------------
+    // 3. 畫面渲染邏輯
+    // ----------------------------------------------------
+    function renderWords() {
+      const container = document.getElementById('wordListContainer');
+      container.innerHTML = '';
+
+      // 過濾符合 Level 與搜尋條件的單字
+      const filtered = wordsData.filter(wordObj => {
+        const matchLevel = (currentLevel === 'all') || (wordObj.level === Number(currentLevel));
+        if (!matchLevel) return false;
+
+        if (!currentSearchTerm) return true;
+
+        // 搜尋匹配：單字、中文意思、搭配詞
+        const headwordMatch = wordObj.word.toLowerCase().includes(currentSearchTerm);
+        const senseMatch = wordObj.senses.some(s => 
+          s.chinese.toLowerCase().includes(currentSearchTerm) ||
+          (s.collocation && s.collocation.toLowerCase().includes(currentSearchTerm))
+        );
+        return headwordMatch || senseMatch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white p-8 rounded-xl text-center border border-slate-200 text-slate-500">
+            沒有找到符合條件的單字
+          </div>`;
+        return;
+      }
+
+      // 建立 DOM 節點
+      const fragment = document.createDocumentFragment();
+
+      filtered.forEach(wordObj => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow';
+
+        let sensesHTML = wordObj.senses.map((sense) => {
+          const isMastered = knownSenseIds.has(sense.id);
+          return `
+            <div class="flex items-start gap-3 p-2.5 rounded-lg transition-colors ${isMastered ? 'bg-slate-50 opacity-60' : 'bg-slate-50/50 hover:bg-slate-100'}">
+              <input type="checkbox" 
+                     id="chk_${sense.id}" 
+                     ${isMastered ? 'checked' : ''} 
+                     onchange="toggleSenseMastery('${sense.id}')"
+                     class="mt-1 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+              
+              <label for="chk_${sense.id}" class="flex-1 cursor-pointer select-none">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-700">${sense.pos}</span>
+                  <span class="text-sm font-bold text-slate-900 ${isMastered ? 'line-through text-slate-400' : ''}">${sense.chinese}</span>
+                </div>
+                
+                ${sense.collocation ? `
+                  <div class="text-xs text-blue-700 font-medium mt-1">
+                    📌 搭配詞：<span class="bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">${sense.collocation}</span>
+                  </div>` : ''}
+                
+                ${sense.example ? `
+                  <div class="text-xs text-slate-600 mt-1.5 italic border-l-2 border-slate-300 pl-2">
+                    "${sense.example}"
+                  </div>` : ''}
+              </label>
+            </div>
+          `;
+        }).join('');
+
+        card.innerHTML = `
+          <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
+            <div class="flex items-baseline gap-2">
+              <h2 class="text-xl font-bold text-slate-900">${wordObj.word}</h2>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">L${wordObj.level}</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            ${sensesHTML}
+          </div>
+        `;
+        fragment.appendChild(card);
+      });
+
+      container.appendChild(fragment);
+    }
+
+    // 切換某個意思的掌握狀態
+    function toggleSenseMastery(senseId) {
+      if (knownSenseIds.has(senseId)) {
+        knownSenseIds.delete(senseId);
+      } else {
+        knownSenseIds.add(senseId);
+      }
+      saveProgress();
+      updateStats();
+      renderWords();
+    }
+
+    // 切換 Level 篩選
+    function filterLevel(level) {
+      currentLevel = level;
+      document.querySelectorAll('.level-btn').forEach(btn => {
+        if (btn.dataset.level == level) {
+          btn.className = "level-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-blue-600 text-white";
+        } else {
+          btn.className = "level-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-slate-100 hover:bg-slate-200 text-slate-700";
+        }
+      });
+      renderWords();
+    }
+
+    // 更新統計數據
+    function updateStats() {
+      let totalSenses = 0;
+      let unmasteredSenses = 0;
+
+      wordsData.forEach(w => {
+        w.senses.forEach(s => {
+          totalSenses++;
+          if (!knownSenseIds.has(s.id)) {
+            unmasteredSenses++;
+          }
+        });
+      });
+
+      const masteredCount = totalSenses - unmasteredSenses;
+      const percent = totalSenses === 0 ? 0 : Math.round((masteredCount / totalSenses) * 100);
+
+      document.getElementById('statUnmasteredCount').innerText = unmasteredSenses;
+      document.getElementById('statProgressPercent').innerText = `${percent}%`;
+    }
+
+    // ----------------------------------------------------
+    // 4. Word (.docx) 盲點本匯出 (優化版)
+    // ----------------------------------------------------
+    function openExportModal() {
+      document.getElementById('exportModal').classList.remove('hidden');
+    }
+
+    function closeExportModal() {
+      document.getElementById('exportModal').classList.add('hidden');
+    }
+
+    async function executeWordExport() {
+      const scope = document.getElementById('exportScope').value;
+      const limit = parseInt(document.getElementById('exportLimit').value, 10);
+
+      // 收集盲點清單
+      let unmasteredList = [];
+
+      wordsData.forEach(w => {
+        if (scope === 'current' && currentLevel !== 'all' && w.level !== Number(currentLevel)) {
+          return;
+        }
+
+        w.senses.forEach(s => {
+          if (!knownSenseIds.has(s.id)) {
+            unmasteredList.push({
+              word: w.word,
+              level: w.level,
+              pos: s.pos,
+              chinese: s.chinese,
+              collocation: s.collocation || '',
+              example: s.example || ''
+            });
+          }
+        });
+      });
+
+      if (unmasteredList.length === 0) {
+        alert("恭喜！選取範圍內沒有未掌握的盲點字義！");
+        closeExportModal();
+        return;
+      }
+
+      // 若有數量限制，進行截斷
+      if (limit > 0 && unmasteredList.length > limit) {
+        unmasteredList = unmasteredList.slice(0, limit);
+      }
+
+      closeExportModal();
+
+      // 使用 docx.js 生成表格
+      const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle } = window.docx;
+
+      const tableRows = [
+        new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "單字 (Level)", bold: true })] })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "詞性/中文", bold: true })] })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "重點搭配詞", bold: true })] })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "例句 / 筆記", bold: true })] })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+          ]
+        })
+      ];
+
+      unmasteredList.forEach(item => {
+        tableRows.push(
+          new TableRow({
+            children: [
+              new TableCell({ children: [new Paragraph(`${item.word} (L${item.level})`)] }),
+              new TableCell({ children: [new Paragraph(`[${item.pos}] ${item.chinese}`)] }),
+              new TableCell({ children: [new Paragraph(item.collocation)] }),
+              new TableCell({ children: [new Paragraph(item.example)] }),
+            ]
+          })
+        );
+      });
+
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text: "學測英文 7000 單字盲點特訓本", bold: true, size: 32 })],
+              space: { after: 300 }
+            }),
+            new Table({
+              rows: tableRows,
+              width: { size: 100, type: WidthType.PERCENTAGE }
+            })
+          ]
+        }]
+      });
+
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, `CEEC_Vocab_Unmastered_${new Date().toISOString().slice(0,10)}.docx`);
+    }
+  </script>
+</body>
+</html>
