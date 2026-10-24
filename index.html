@@ -23,9 +23,10 @@
             --pre-bg: #1e293b;
             --pre-text: #f8fafc;
             --sense-known-opacity: 0.45;
+            --danger: #dc2626;
+            --danger-hover: #b91c1c;
         }
 
-        /* 大宗網頁質感深色模式設計 (GitHub / Slate Dark Style) */
         [data-theme="dark"] {
             --bg: #0d1117;
             --card-bg: #161b22;
@@ -42,19 +43,20 @@
             --pre-bg: #010409;
             --pre-text: #c9d1d9;
             --sense-known-opacity: 0.25;
+            --danger: #f85149;
+            --danger-hover: #da3633;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background-color 0.25s, color 0.25s, border-color 0.25s, opacity 0.25s; }
         body { background-color: var(--bg); color: var(--text-main); padding: 24px 16px; max-width: 800px; margin: 0 auto; min-height: 100vh; }
         
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
         h1 { font-size: 1.5rem; color: var(--text-main); }
         .subtitle { font-size: 0.85rem; color: var(--text-sub); }
 
-        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-        /* 主題切換按鈕與擴充包按鈕 */
-        .theme-toggle-btn, .expand-btn {
+        .action-btn, .theme-toggle-btn, .expand-btn, .manage-btn {
             padding: 6px 12px;
             border-radius: 20px;
             border: 1px solid var(--border);
@@ -66,6 +68,9 @@
         }
         .expand-btn { background: var(--primary); color: white; border: none; }
         .expand-btn:hover { opacity: 0.9; }
+        .manage-btn { background: #0f172a; color: white; border: none; }
+        [data-theme="dark"] .manage-btn { background: #30363d; color: var(--text-main); border: 1px solid var(--border); }
+        .manage-btn:hover { opacity: 0.9; }
 
         .filter-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
         .filter-select, .search-input { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; outline: none; }
@@ -88,7 +93,6 @@
         .senses-list { display: flex; flex-direction: column; gap: 12px; }
         .sense-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--sense-bg); border: 1px solid var(--sense-border); cursor: pointer; }
         
-        /* 已勾選意思的灰化樣式 */
         .sense-item.known { opacity: var(--sense-known-opacity); filter: grayscale(80%); }
         [data-theme="dark"] .sense-item.known { background: #161b22; border-color: #21262d; }
 
@@ -112,15 +116,26 @@
 
         .key-hint { margin-top: 12px; text-align: center; font-size: 0.8rem; color: var(--text-sub); }
 
-        /* 模態視窗 */
+        /* 模態視窗通用樣式 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); justify-content: center; align-items: center; padding: 16px; z-index: 100; }
         .modal-content { background: var(--modal-content-bg); color: var(--text-main); padding: 24px; border-radius: 12px; width: 100%; max-width: 680px; max-height: 85vh; overflow-y: auto; border: 1px solid var(--border); }
-        .modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-weight: bold; }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-weight: bold; align-items: center; }
         pre { background: var(--pre-bg); color: var(--pre-text); padding: 14px; border-radius: 8px; font-size: 0.85rem; overflow-x: auto; white-space: pre-wrap; max-height: 300px; line-height: 1.5; }
         .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
         .btn-word { background: #2563eb; color: white; }
+        .btn-danger { background: var(--danger); color: white; border: none; }
+        .btn-danger:hover { background: var(--danger-hover); }
         
         .json-textarea { width: 100%; height: 200px; background: var(--pre-bg); color: var(--pre-text); padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-family: monospace; font-size: 0.85rem; resize: vertical; }
+
+        /* 管理字庫列表樣式 */
+        .manage-search { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; margin-bottom: 12px; }
+        .manage-word-list { display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; margin-bottom: 16px; }
+        .manage-word-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--sense-bg); border: 1px solid var(--sense-border); border-radius: 8px; }
+        .manage-word-info { font-weight: 600; font-size: 0.95rem; }
+        .manage-word-meta { font-size: 0.8rem; color: var(--text-sub); }
+        .btn-sm-delete { padding: 4px 10px; background: var(--danger); color: white; border: none; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 600; }
+        .btn-sm-delete:hover { background: var(--danger-hover); }
     </style>
 </head>
 <body>
@@ -132,6 +147,7 @@
         </div>
         <div class="header-actions">
             <button class="expand-btn" onclick="showExpandModal()">📦 擴充 JSON</button>
+            <button class="manage-btn" onclick="showManageModal()">🗑️ 管理/刪除字庫</button>
             <button class="theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">🌙 深色模式</button>
         </div>
     </header>
@@ -210,6 +226,23 @@
         </div>
     </div>
 
+    <!-- 管理 / 刪除字庫 Modal -->
+    <div class="modal" id="manage-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>管理與刪除字庫單字</span>
+                <button style="border:none; background:none; cursor:pointer; color:var(--text-main);" onclick="closeManageModal()">✕</button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">在此檢視所有已載入的單字，可單獨刪除不需要的單字，或一鍵清空整個字庫。</p>
+            <input type="text" class="manage-search" id="manage-search-input" placeholder="在字庫中搜尋單字以刪除..." oninput="renderManageList()">
+            <div class="manage-word-list" id="manage-word-list"></div>
+            <div class="modal-actions" style="justify-content: space-between;">
+                <button class="btn btn-danger" onclick="clearEntireDatabase()">⚠️ 清空整個字庫</button>
+                <button class="btn btn-prev" onclick="closeManageModal()">關閉視窗</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const defaultWordsData = [];
 
@@ -252,6 +285,7 @@
                 updateStats();
                 return;
             }
+            if (currentIndex >= filteredWords.length) currentIndex = 0;
             const current = filteredWords[currentIndex];
             let sensesHtml = current.senses.map((sense, sIndex) => `
                 <div class="sense-item ${sense.known ? 'known' : ''}" onclick="toggleSenseDirect(${sIndex})">
@@ -341,6 +375,52 @@
         function showExpandModal() { document.getElementById("expand-modal").style.display = "flex"; }
         function closeExpandModal() { document.getElementById("expand-modal").style.display = "none"; }
 
+        function showManageModal() {
+            renderManageList();
+            document.getElementById("manage-modal").style.display = "flex";
+        }
+        function closeManageModal() { document.getElementById("manage-modal").style.display = "none"; }
+
+        function renderManageList() {
+            const searchVal = document.getElementById("manage-search-input").value.toLowerCase().trim();
+            const listEl = document.getElementById("manage-word-list");
+            const matched = wordsData.filter(w => w.word.toLowerCase().includes(searchVal));
+
+            if (matched.length === 0) {
+                listEl.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:0.85rem;">沒有找到符合的單字。</div>`;
+                return;
+            }
+
+            listEl.innerHTML = matched.map(w => `
+                <div class="manage-word-row">
+                    <div>
+                        <div class="manage-word-info">${w.word} <span style="font-weight:normal; font-size:0.8rem; color:var(--text-sub);">${w.label || ''}</span></div>
+                        <div class="manage-word-meta">Level ${w.level} ‧ ${w.senses.length} 個義項</div>
+                    </div>
+                    <button class="btn-sm-delete" onclick="deleteWord('${w.word}')">刪除</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteWord(wordName) {
+            if (confirm(`確定要從字庫中刪除 "${wordName}" 嗎？`)) {
+                wordsData = wordsData.filter(w => w.word !== wordName);
+                saveData();
+                applyFilters();
+                renderManageList();
+            }
+        }
+
+        function clearEntireDatabase() {
+            if (confirm("⚠️ 警告：這將會清空整個字庫的所有單字！確定要繼續嗎？")) {
+                wordsData = [];
+                saveData();
+                applyFilters();
+                renderManageList();
+                closeManageModal();
+            }
+        }
+
         function handleJsonFile(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -363,7 +443,6 @@
                     alert("JSON 格式錯誤：根節點必須是陣列格式 [...]");
                     return;
                 }
-                // 合併或覆蓋，這裡以合併/新增為例（避免重複單字）
                 const existingWordsMap = new Map(wordsData.map(w => [w.word, w]));
                 newWords.forEach(nw => {
                     existingWordsMap.set(nw.word, nw);
@@ -507,7 +586,6 @@
             else if (e.key >= "1" && e.key >= "1" && e.key <= "9") toggleSenseDirect(parseInt(e.key) - 1);
         });
 
-        // 初始化
         initTheme();
         renderCard();
     </script>
