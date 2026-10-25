@@ -577,7 +577,7 @@
             }
         }
 
-        // 🚀 完全重構的 Word 輸出功能（改為區塊清單排版，手機 100% 不會被擠扁）
+        // 🚀 全新設計的 Word 輸出：更寬鬆的區塊排版與充裕的呼吸間距
         async function downloadWordDocx() {
             if (typeof docx === 'undefined') {
                 alert("Docx 套件載入中，請稍後再試...");
@@ -602,40 +602,40 @@
 
             const docChildren = [
                 new Paragraph({
-                    spacing: { after: 120 },
+                    spacing: { after: 160 },
                     children: [new TextRun({ text: `學測 7000 單一字多義 ‧ 個人盲點特訓筆記本 (${expLevel === 'all' ? '所有級別' : 'Level ' + expLevel})`, bold: true, size: 36, color: "1E3A8A" })]
                 }),
                 new Paragraph({
-                    spacing: { after: 360 },
-                    children: [new TextRun({ text: "依據大考中心 108 課綱參考詞彙表 ｜ 專屬盲點複習清單\n", size: 20, color: "64748B" })]
+                    spacing: { after: 400 },
+                    children: [new TextRun({ text: "依據大考中心 108 課綱參考詞彙表 ｜ 專屬盲點複習清單", size: 22, color: "64748B" })]
                 })
             ];
 
             retainedData.forEach((item) => {
-                // 單字標題
+                // 單字標題 (加上較大的上下間距)
                 docChildren.push(
                     new Paragraph({
-                        spacing: { before: 200, after: 80 },
+                        spacing: { before: 280, after: 120 },
                         children: [
-                            new TextRun({ text: item.word, bold: true, size: 28, color: "0F172A" }),
-                            new TextRun({ text: `  ${item.label || ''}  (Level ${item.level} | ${item.pos})`, size: 20, color: "4F46E5" })
+                            new TextRun({ text: item.word, bold: true, size: 30, color: "0F172A" }),
+                            new TextRun({ text: `   ${item.label || ''}   (Level ${item.level} | ${item.pos})`, size: 20, color: "4F46E5" })
                         ]
                     })
                 );
 
-                // 未掌握的意思條列
-                item.retained_senses.forEach((sense) => {
+                // 每個意思獨立成段落並加上清晰換行與間距
+                item.retained_senses.forEach((sense, sIdx) => {
                     docChildren.push(
                         new Paragraph({
-                            spacing: { after: 60 },
-                            indent: { left: 360 },
+                            spacing: { before: 60, after: 140 },
+                            indent: { left: 400 },
                             children: [
-                                new TextRun({ text: `• [${sense.pos}] `, bold: true, color: "1E3A8A", size: 20 }),
-                                new TextRun({ text: `${sense.meaning}\n`, bold: true, color: "0F172A", size: 20 }),
-                                new TextRun({ text: "   搭配詞：", color: "64748B", size: 18 }),
-                                new TextRun({ text: `${sense.collocation}\n`, bold: true, color: "0284C7", size: 18 }),
-                                new TextRun({ text: "   例句：", color: "64748B", size: 18 }),
-                                new TextRun({ text: `“${sense.example}”`, italics: true, color: "334155", size: 18 })
+                                new TextRun({ text: `${sIdx + 1}. [${sense.pos}] `, bold: true, color: "1E3A8A", size: 22 }),
+                                new TextRun({ text: `${sense.meaning}\n`, bold: true, color: "0F172A", size: 22 }),
+                                new TextRun({ text: "     常用搭配：", color: "64748B", size: 20 }),
+                                new TextRun({ text: `${sense.collocation}\n`, bold: true, color: "0284C7", size: 20 }),
+                                new TextRun({ text: "     經典例句：", color: "64748B", size: 20 }),
+                                new TextRun({ text: `“${sense.example}”`, italics: true, color: "334155", size: 20 })
                             ]
                         })
                     );
