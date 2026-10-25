@@ -488,7 +488,7 @@
             listEl.innerHTML = matched.map(w => `
                 <div class="manage-word-row">
                     <div>
-                        <div class="manage-word-info">${w.word} <span style="font-weight:normal; font-size:0.8rem; color:var(--text-sub);">${w.label || ''}</span></div>
+                        <div class="manage-word-info">${w.word} <span style="font-weight:normal; font-size:0.80rem; color:var(--text-sub);">${w.label || ''}</span></div>
                         <div class="manage-word-meta">Level ${w.level} ‧ ${w.senses.length} 個義項</div>
                     </div>
                     <button class="btn-sm-delete" onclick="deleteWord('${w.word}')">刪除單字</button>
@@ -601,15 +601,16 @@
 
             const rows = [
                 new TableRow({
+                    tableHeader: true,
                     children: [
                         new TableCell({
-                            width: { size: 30, type: WidthType.PERCENTAGE },
-                            children: [new Paragraph({ children: [new TextRun({ text: "單字 / 級別", bold: true, color: "FFFFFF" })] })],
+                            width: { size: 2600, type: WidthType.DXA },
+                            children: [new Paragraph({ children: [new TextRun({ text: "單字 / 級別", bold: true, color: "FFFFFF", size: 22 })] })],
                             shading: { fill: "1E3A8A" }
                         }),
                         new TableCell({
-                            width: { size: 70, type: WidthType.PERCENTAGE },
-                            children: [new Paragraph({ children: [new TextRun({ text: "未掌握意思 ‧ 搭配詞 ‧ 經典例句", bold: true, color: "FFFFFF" })] })],
+                            width: { size: 6800, type: WidthType.DXA },
+                            children: [new Paragraph({ children: [new TextRun({ text: "未掌握意思 ‧ 搭配詞 ‧ 經典例句", bold: true, color: "FFFFFF", size: 22 })] })],
                             shading: { fill: "1E3A8A" }
                         })
                     ]
@@ -633,6 +634,7 @@
                 item.retained_senses.forEach(sense => {
                     rightParagraphs.push(
                         new Paragraph({
+                            spacing: { after: 120 },
                             children: [
                                 new TextRun({ text: `• [${sense.pos}] `, bold: true, color: "1E3A8A", size: 20 }),
                                 new TextRun({ text: `${sense.meaning}\n`, bold: true, color: "0F172A", size: 20 }),
@@ -648,8 +650,16 @@
                 rows.push(
                     new TableRow({
                         children: [
-                            new TableCell({ children: leftParagraphs, shading: { fill: bgHex } }),
-                            new TableCell({ children: rightParagraphs, shading: { fill: bgHex } })
+                            new TableCell({
+                                width: { size: 2600, type: WidthType.DXA },
+                                children: leftParagraphs,
+                                shading: { fill: bgHex }
+                            }),
+                            new TableCell({
+                                width: { size: 9400, type: WidthType.DXA },
+                                children: rightParagraphs,
+                                shading: { fill: bgHex }
+                            })
                         ]
                     })
                 );
@@ -657,10 +667,24 @@
 
             const doc = new Document({
                 sections: [{
+                    properties: {
+                        page: {
+                            margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 }
+                        }
+                    },
                     children: [
-                        new Paragraph({ children: [new TextRun({ text: `學測 7000 單一字多義 ‧ 個人盲點特訓筆記本 (${expLevel === 'all' ? '所有級別' : 'Level ' + expLevel})`, bold: true, size: 36, color: "1E3A8A" })] }),
-                        new Paragraph({ children: [new TextRun({ text: "依據大考中心 108 課綱參考詞彙表 ｜ 預留閱讀劃記與抄寫筆記空間\n\n", size: 20, color: "64748B" })] }),
-                        new Table({ rows: rows, width: { size: 100, type: WidthType.PERCENTAGE } })
+                        new Paragraph({ 
+                            spacing: { after: 120 },
+                            children: [new TextRun({ text: `學測 7000 單一字多義 ‧ 個人盲點特訓筆記本 (${expLevel === 'all' ? '所有級別' : 'Level ' + expLevel})`, bold: true, size: 36, color: "1E3A8A" })] 
+                        }),
+                        new Paragraph({ 
+                            spacing: { after: 240 },
+                            children: [new TextRun({ text: "依據大考中心 108 課綱參考詞彙表 ｜ 預留閱讀劃記與抄寫筆記空間", size: 20, color: "64748B" })] 
+                        }),
+                        new Table({ 
+                            rows: rows, 
+                            width: { size: 100, type: WidthType.PERCENTAGE } 
+                        })
                     ]
                 }]
             });
