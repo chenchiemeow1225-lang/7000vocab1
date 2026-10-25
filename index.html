@@ -577,13 +577,14 @@
             }
         }
 
+        // 🚀 完全重構的 Word 輸出功能（改為區塊清單排版，手機 100% 不會被擠扁）
         async function downloadWordDocx() {
             if (typeof docx === 'undefined') {
                 alert("Docx 套件載入中，請稍後再試...");
                 return;
             }
 
-            const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType } = docx;
+            const { Document, Packer, Paragraph, TextRun } = docx;
             const expLevel = document.getElementById("export-level-select").value;
 
             const retainedData = wordsData.map(w => ({
@@ -599,46 +600,39 @@
                 return;
             }
 
-            const rows = [
-                new TableRow({
-                    tableHeader: true,
-                    children: [
-                        new TableCell({
-                            width: { size: 2600, type: WidthType.DXA },
-                            children: [new Paragraph({ children: [new TextRun({ text: "單字 / 級別", bold: true, color: "FFFFFF", size: 22 })] })],
-                            shading: { fill: "1E3A8A" }
-                        }),
-                        new TableCell({
-                            width: { size: 6800, type: WidthType.DXA },
-                            children: [new Paragraph({ children: [new TextRun({ text: "未掌握意思 ‧ 搭配詞 ‧ 經典例句", bold: true, color: "FFFFFF", size: 22 })] })],
-                            shading: { fill: "1E3A8A" }
-                        })
-                    ]
+            const docChildren = [
+                new Paragraph({
+                    spacing: { after: 120 },
+                    children: [new TextRun({ text: `學測 7000 單一字多義 ‧ 個人盲點特訓筆記本 (${expLevel === 'all' ? '所有級別' : 'Level ' + expLevel})`, bold: true, size: 36, color: "1E3A8A" })]
+                }),
+                new Paragraph({
+                    spacing: { after: 360 },
+                    children: [new TextRun({ text: "依據大考中心 108 課綱參考詞彙表 ｜ 專屬盲點複習清單\n", size: 20, color: "64748B" })]
                 })
             ];
 
-            retainedData.forEach((item, idx) => {
-                const bgHex = idx % 2 === 1 ? "F8FAFC" : "FFFFFF";
-
-                const leftParagraphs = [
+            retainedData.forEach((item) => {
+                // 單字標題
+                docChildren.push(
                     new Paragraph({
+                        spacing: { before: 200, after: 80 },
                         children: [
-                            new TextRun({ text: item.word + " ", bold: true, size: 26, color: "0F172A" }),
-                            new TextRun({ text: (item.label || "") + "\n", bold: true, size: 20, color: "1E3A8A" }),
-                            new TextRun({ text: `Level ${item.level} | ${item.pos}`, size: 18, color: "64748B" })
+                            new TextRun({ text: item.word, bold: true, size: 28, color: "0F172A" }),
+                            new TextRun({ text: `  ${item.label || ''}  (Level ${item.level} | ${item.pos})`, size: 20, color: "4F46E5" })
                         ]
                     })
-                ];
+                );
 
-                const rightParagraphs = [];
-                item.retained_senses.forEach(sense => {
-                    rightParagraphs.push(
+                // 未掌握的意思條列
+                item.retained_senses.forEach((sense) => {
+                    docChildren.push(
                         new Paragraph({
-                            spacing: { after: 120 },
+                            spacing: { after: 60 },
+                            indent: { left: 360 },
                             children: [
                                 new TextRun({ text: `• [${sense.pos}] `, bold: true, color: "1E3A8A", size: 20 }),
                                 new TextRun({ text: `${sense.meaning}\n`, bold: true, color: "0F172A", size: 20 }),
-                                new TextRun({ text: "   搭配：", color: "64748B", size: 18 }),
+                                new TextRun({ text: "   搭配詞：", color: "64748B", size: 18 }),
                                 new TextRun({ text: `${sense.collocation}\n`, bold: true, color: "0284C7", size: 18 }),
                                 new TextRun({ text: "   例句：", color: "64748B", size: 18 }),
                                 new TextRun({ text: `“${sense.example}”`, italics: true, color: "334155", size: 18 })
@@ -646,23 +640,6 @@
                         })
                     );
                 });
-
-                rows.push(
-                    new TableRow({
-                        children: [
-                            new TableCell({
-                                width: { size: 2600, type: WidthType.DXA },
-                                children: leftParagraphs,
-                                shading: { fill: bgHex }
-                            }),
-                            new TableCell({
-                                width: { size: 9400, type: WidthType.DXA },
-                                children: rightParagraphs,
-                                shading: { fill: bgHex }
-                            })
-                        ]
-                    })
-                );
             });
 
             const doc = new Document({
@@ -672,20 +649,7 @@
                             margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 }
                         }
                     },
-                    children: [
-                        new Paragraph({ 
-                            spacing: { after: 120 },
-                            children: [new TextRun({ text: `學測 7000 單一字多義 ‧ 個人盲點特訓筆記本 (${expLevel === 'all' ? '所有級別' : 'Level ' + expLevel})`, bold: true, size: 36, color: "1E3A8A" })] 
-                        }),
-                        new Paragraph({ 
-                            spacing: { after: 240 },
-                            children: [new TextRun({ text: "依據大考中心 108 課綱參考詞彙表 ｜ 預留閱讀劃記與抄寫筆記空間", size: 20, color: "64748B" })] 
-                        }),
-                        new Table({ 
-                            rows: rows, 
-                            width: { size: 100, type: WidthType.PERCENTAGE } 
-                        })
-                    ]
+                    children: docChildren
                 }]
             });
 
