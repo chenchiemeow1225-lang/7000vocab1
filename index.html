@@ -25,6 +25,8 @@
             --sense-known-opacity: 0.45;
             --danger: #dc2626;
             --danger-hover: #b91c1c;
+            --warning: #d97706;
+            --warning-hover: #b45309;
         }
 
         [data-theme="dark"] {
@@ -45,10 +47,12 @@
             --sense-known-opacity: 0.25;
             --danger: #f85149;
             --danger-hover: #da3633;
+            --warning: #f0883e;
+            --warning-hover: #d16922;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background-color 0.25s, color 0.25s, border-color 0.25s, opacity 0.25s; }
-        body { background-color: var(--bg); color: var(--text-main); padding: 24px 16px; max-width: 800px; margin: 0 auto; min-height: 100vh; }
+        body { background-color: var(--bg); color: var(--text-main); padding: 24px 16px 100px 16px; max-width: 800px; margin: 0 auto; min-height: 100vh; }
         
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
         h1 { font-size: 1.5rem; color: var(--text-main); }
@@ -104,7 +108,24 @@
         [data-theme="dark"] .sense-collocation { background: rgba(121, 192, 255, 0.12); }
         .sense-example { font-size: 0.85rem; color: var(--text-sub); font-style: italic; }
 
-        .controls { display: flex; gap: 12px; }
+        /* 底部固定導航列 */
+        .controls-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+            z-index: 90;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .controls { display: flex; gap: 12px; width: 100%; max-width: 800px; }
         .btn { padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; }
         .btn-prev { background: var(--border); color: var(--text-main); }
         .btn-prev:hover { opacity: 0.9; }
@@ -120,22 +141,27 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); justify-content: center; align-items: center; padding: 16px; z-index: 100; }
         .modal-content { background: var(--modal-content-bg); color: var(--text-main); padding: 24px; border-radius: 12px; width: 100%; max-width: 680px; max-height: 85vh; overflow-y: auto; border: 1px solid var(--border); }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-weight: bold; align-items: center; }
-        pre { background: var(--pre-bg); color: var(--pre-text); padding: 14px; border-radius: 8px; font-size: 0.85rem; overflow-x: auto; white-space: pre-wrap; max-height: 300px; line-height: 1.5; }
+        pre { background: var(--pre-bg); color: var(--pre-text); padding: 14px; border-radius: 8px; font-size: 0.85rem; overflow-x: auto; white-space: pre-wrap; max-height: 220px; line-height: 1.5; margin-bottom: 16px; }
         .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
         .btn-word { background: #2563eb; color: white; }
         .btn-danger { background: var(--danger); color: white; border: none; }
         .btn-danger:hover { background: var(--danger-hover); }
+        .btn-warning { background: var(--warning); color: white; border: none; }
+        .btn-warning:hover { background: var(--warning-hover); }
         
-        .json-textarea { width: 100%; height: 200px; background: var(--pre-bg); color: var(--pre-text); padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-family: monospace; font-size: 0.85rem; resize: vertical; }
+        .json-textarea { width: 100%; height: 180px; background: var(--pre-bg); color: var(--pre-text); padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-family: monospace; font-size: 0.85rem; resize: vertical; margin-bottom: 12px; }
 
-        /* 管理字庫列表樣式 */
-        .manage-search { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; margin-bottom: 12px; }
-        .manage-word-list { display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; margin-bottom: 16px; }
-        .manage-word-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--sense-bg); border: 1px solid var(--sense-border); border-radius: 8px; }
+        /* 管理字庫專用樣式 */
+        .manage-controls-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+        .manage-word-list { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 8px; padding: 8px; background: var(--sense-bg); }
+        .manage-word-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; }
         .manage-word-info { font-weight: 600; font-size: 0.95rem; }
         .manage-word-meta { font-size: 0.8rem; color: var(--text-sub); }
         .btn-sm-delete { padding: 4px 10px; background: var(--danger); color: white; border: none; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 600; }
         .btn-sm-delete:hover { background: var(--danger-hover); }
+
+        .form-group { margin-bottom: 14px; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
     </style>
 </head>
 <body>
@@ -182,14 +208,17 @@
 
     <div class="card" id="word-card"></div>
 
-    <div class="controls">
-        <button class="btn btn-prev" onclick="prevWord()">← 上一個</button>
-        <button class="btn btn-next" onclick="nextWord()">下一個 (Space / Enter) →</button>
-        <button class="btn btn-export" onclick="showExport()">匯出盲點檔</button>
+    <div class="key-hint" style="margin-bottom: 60px;">
+        💡 快捷鍵操作：[Space / Enter] 下一個單字 ｜ [1, 2, 3...] 快速切換對應意思勾選狀態
     </div>
 
-    <div class="key-hint">
-        💡 快捷鍵操作：[Space / Enter] 下一個單字 ｜ [1, 2, 3...] 快速切換對應意思勾選狀態
+    <!-- 底部固定導航列 -->
+    <div class="controls-bar">
+        <div class="controls">
+            <button class="btn btn-prev" onclick="prevWord()">← 上一個</button>
+            <button class="btn btn-next" onclick="nextWord()">下一個 (Space / Enter) →</button>
+            <button class="btn btn-export" onclick="showExport()">匯出盲點檔</button>
+        </div>
     </div>
 
     <!-- 匯出 Modal -->
@@ -199,12 +228,24 @@
                 <span>個人盲點特訓清單導出</span>
                 <button style="border:none; background:none; cursor:pointer; color:var(--text-main);" onclick="closeExport()">✕</button>
             </div>
-            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">選擇導出方式：列印排版 Word 檔，或電子卡片 Anki 格式。</p>
+            <div class="form-group">
+                <label class="form-label">選擇匯出級別：</label>
+                <select class="filter-select" id="export-level-select" style="width: 100%;" onchange="updateExportPreview()">
+                    <option value="all">所有級別 (All Levels)</option>
+                    <option value="1">Level 1</option>
+                    <option value="2">Level 2</option>
+                    <option value="3">Level 3</option>
+                    <option value="4">Level 4</option>
+                    <option value="5">Level 5</option>
+                    <option value="6">Level 6</option>
+                </select>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 8px;">預覽內容：</p>
             <pre id="export-preview"></pre>
             <div class="modal-actions">
                 <button class="btn btn-word" onclick="downloadWordDocx()">匯出 Word 筆記本 (.docx)</button>
                 <button class="btn btn-next" onclick="downloadTXT()">下載 Anki 文字檔 (.txt)</button>
-                <button class="btn btn-prev" onclick="resetAllProgress()">重置勾選</button>
+                <button class="btn btn-warning" onclick="resetAllProgress()">重置所有勾選</button>
             </div>
         </div>
     </div>
@@ -218,7 +259,7 @@
             </div>
             <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">上傳 JSON 檔案，或貼上符合三塊排版格式的單字 JSON 陣列：</p>
             <input type="file" id="json-file-input" accept=".json" style="margin-bottom: 12px; font-size: 0.85rem;" onchange="handleJsonFile(event)">
-            <textarea class="json-textarea" id="json-textarea" placeholder="或者在此貼上 JSON 內容..."></textarea>
+            <textarea class="json-textarea" id="json-textarea" placeholder="在此貼上 JSON 內容..."></textarea>
             <div class="modal-actions">
                 <button class="btn btn-word" onclick="importJsonData()">確認並加入字庫</button>
                 <button class="btn btn-prev" onclick="closeExpandModal()">取消</button>
@@ -233,11 +274,29 @@
                 <span>管理與刪除字庫單字</span>
                 <button style="border:none; background:none; cursor:pointer; color:var(--text-main);" onclick="closeManageModal()">✕</button>
             </div>
-            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">在此檢視所有已載入的單字，可單獨刪除不需要的單字，或一鍵清空整個字庫。</p>
-            <input type="text" class="manage-search" id="manage-search-input" placeholder="在字庫中搜尋單字以刪除..." oninput="renderManageList()">
+            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">在此檢視與清理字庫。您可以選擇指定級別，一鍵清除已習得字義（勾選過的意思），或直接刪除特定單字。</p>
+            
+            <div class="manage-controls-row">
+                <select class="filter-select" id="manage-level-select" style="flex: 1;" onchange="renderManageList()">
+                    <option value="all">所有級別 (All Levels)</option>
+                    <option value="1">Level 1</option>
+                    <option value="2">Level 2</option>
+                    <option value="3">Level 3</option>
+                    <option value="4">Level 4</option>
+                    <option value="5">Level 5</option>
+                    <option value="6">Level 6</option>
+                </select>
+                <input type="text" class="search-input" id="manage-search-input" placeholder="搜尋單字..." oninput="renderManageList()" style="flex: 2;">
+            </div>
+
+            <div class="manage-controls-row" style="margin-bottom: 16px;">
+                <button class="btn btn-warning" style="flex: 1; font-size: 0.85rem; padding: 8px;" onclick="batchCleanKnownSenses()">🧹 清除所選級別「已習得字義」</button>
+                <button class="btn btn-danger" style="flex: 1; font-size: 0.85rem; padding: 8px;" onclick="batchDeleteEntireWords()">⚠️ 清空所選級別所有單字</button>
+            </div>
+
             <div class="manage-word-list" id="manage-word-list"></div>
-            <div class="modal-actions" style="justify-content: space-between;">
-                <button class="btn btn-danger" onclick="clearEntireDatabase()">⚠️ 清空整個字庫</button>
+
+            <div class="modal-actions" style="justify-content: flex-end;">
                 <button class="btn btn-prev" onclick="closeManageModal()">關閉視窗</button>
             </div>
         </div>
@@ -247,8 +306,10 @@
         const defaultWordsData = [];
 
         let wordsData = JSON.parse(localStorage.getItem("ceec_vocab_data_v6_expanded")) || defaultWordsData;
-        let filteredWords = [...wordsData];
-        let currentIndex = 0;
+        let currentLevelFilter = localStorage.getItem("ceec_vocab_level_filter") || "all";
+        let currentSearchQuery = "";
+        let filteredWords = [];
+        let currentIndex = parseInt(localStorage.getItem("ceec_vocab_current_index")) || 0;
 
         function initTheme() {
             const savedTheme = localStorage.getItem("ceec_theme_v6_expanded") || "light";
@@ -264,28 +325,45 @@
             document.getElementById("theme-btn").innerText = newTheme === "dark" ? "☀️ 淺色模式" : "🌙 深色模式";
         }
 
-        function saveData() { localStorage.setItem("ceec_vocab_data_v6_expanded", JSON.stringify(wordsData)); }
+        function saveData() { 
+            localStorage.setItem("ceec_vocab_data_v6_expanded", JSON.stringify(wordsData)); 
+            localStorage.setItem("ceec_vocab_level_filter", currentLevelFilter);
+            localStorage.setItem("ceec_vocab_current_index", currentIndex);
+        }
 
-        function applyFilters() {
-            const levelVal = document.getElementById("level-filter").value;
-            const searchVal = document.getElementById("search-input").value.toLowerCase().trim();
+        function initApp() {
+            initTheme();
+            document.getElementById("level-filter").value = currentLevelFilter;
+            applyFilters(false);
+        }
+
+        function applyFilters(resetIndex = true) {
+            currentLevelFilter = document.getElementById("level-filter").value;
+            currentSearchQuery = document.getElementById("search-input").value.toLowerCase().trim();
+
             filteredWords = wordsData.filter(w => {
-                const matchLevel = (levelVal === "all") || (w.level.toString() === levelVal);
-                const matchSearch = w.word.toLowerCase().includes(searchVal);
+                const matchLevel = (currentLevelFilter === "all") || (w.level.toString() === currentLevelFilter);
+                const matchSearch = w.word.toLowerCase().includes(currentSearchQuery);
                 return matchLevel && matchSearch;
             });
-            currentIndex = 0;
+
+            if (resetIndex || currentIndex >= filteredWords.length) {
+                currentIndex = 0;
+            }
+            saveData();
             renderCard();
         }
 
         function renderCard() {
             const cardEl = document.getElementById("word-card");
             if (filteredWords.length === 0) {
-                cardEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub);">目前字庫無單字，請點擊右上角「📦 擴充 JSON」匯入單字包開始速刷！</div>`;
+                cardEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub);">目前篩選條件下無單字，請切換級別或點擊右上角「📦 擴充 JSON」匯入單字！</div>`;
                 updateStats();
                 return;
             }
-            if (currentIndex >= filteredWords.length) currentIndex = 0;
+            if (currentIndex >= filteredWords.length) currentIndex = filteredWords.length - 1;
+            if (currentIndex < 0) currentIndex = 0;
+
             const current = filteredWords[currentIndex];
             let sensesHtml = current.senses.map((sense, sIndex) => `
                 <div class="sense-item ${sense.known ? 'known' : ''}" onclick="toggleSenseDirect(${sIndex})">
@@ -310,6 +388,7 @@
                 <div class="senses-list">${sensesHtml}</div>
             `;
             updateStats();
+            saveData();
         }
 
         function toggleSense(wordName, senseIndex, isChecked) {
@@ -357,8 +436,18 @@
         }
 
         function showExport() {
+            document.getElementById("export-level-select").value = currentLevelFilter;
+            updateExportPreview();
+            document.getElementById("export-modal").style.display = "flex";
+        }
+
+        function closeExport() { document.getElementById("export-modal").style.display = "none"; }
+
+        function updateExportPreview() {
+            const expLevel = document.getElementById("export-level-select").value;
             let lines = [];
             wordsData.forEach(w => {
+                if (expLevel !== "all" && w.level.toString() !== expLevel) return;
                 const unknownSenses = w.senses.filter(s => !s.known);
                 if (unknownSenses.length === 0) return;
                 lines.push(`【${w.word} ${w.label || ''}】 (Level ${w.level})`);
@@ -366,25 +455,30 @@
                     lines.push(`  • [${s.pos}] ${s.meaning}\n    搭配: ${s.collocation}\n    例句: ${s.example}`);
                 });
             });
-            document.getElementById("export-preview").innerText = lines.join("\n\n") || "太棒了！所有單字皆已掌握！";
-            document.getElementById("export-modal").style.display = "flex";
+            document.getElementById("export-preview").innerText = lines.join("\n\n") || "此級別中沒有未掌握的盲點單字！";
         }
-
-        function closeExport() { document.getElementById("export-modal").style.display = "none"; }
 
         function showExpandModal() { document.getElementById("expand-modal").style.display = "flex"; }
         function closeExpandModal() { document.getElementById("expand-modal").style.display = "none"; }
 
         function showManageModal() {
+            document.getElementById("manage-level-select").value = currentLevelFilter;
+            document.getElementById("manage-search-input").value = "";
             renderManageList();
             document.getElementById("manage-modal").style.display = "flex";
         }
         function closeManageModal() { document.getElementById("manage-modal").style.display = "none"; }
 
         function renderManageList() {
-            const searchVal = document.getElementById("manage-search-input").value.toLowerCase().trim();
+            const mLevel = document.getElementById("manage-level-select").value;
+            const mSearch = document.getElementById("manage-search-input").value.toLowerCase().trim();
             const listEl = document.getElementById("manage-word-list");
-            const matched = wordsData.filter(w => w.word.toLowerCase().includes(searchVal));
+            
+            const matched = wordsData.filter(w => {
+                const matchL = (mLevel === "all") || (w.level.toString() === mLevel);
+                const matchS = w.word.toLowerCase().includes(mSearch);
+                return matchL && matchS;
+            });
 
             if (matched.length === 0) {
                 listEl.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:0.85rem;">沒有找到符合的單字。</div>`;
@@ -397,7 +491,7 @@
                         <div class="manage-word-info">${w.word} <span style="font-weight:normal; font-size:0.8rem; color:var(--text-sub);">${w.label || ''}</span></div>
                         <div class="manage-word-meta">Level ${w.level} ‧ ${w.senses.length} 個義項</div>
                     </div>
-                    <button class="btn-sm-delete" onclick="deleteWord('${w.word}')">刪除</button>
+                    <button class="btn-sm-delete" onclick="deleteWord('${w.word}')">刪除單字</button>
                 </div>
             `).join('');
         }
@@ -406,19 +500,45 @@
             if (confirm(`確定要從字庫中刪除 "${wordName}" 嗎？`)) {
                 wordsData = wordsData.filter(w => w.word !== wordName);
                 saveData();
-                applyFilters();
+                applyFilters(false);
                 renderManageList();
             }
         }
 
-        function clearEntireDatabase() {
-            if (confirm("⚠️ 警告：這將會清空整個字庫的所有單字！確定要繼續嗎？")) {
+        function batchCleanKnownSenses() {
+            const mLevel = document.getElementById("manage-level-select").value;
+            const levelText = mLevel === "all" ? "所有級別" : `Level ${mLevel}`;
+            if (!confirm(`確定要清除 ${levelText} 中所有「已習得（已勾選）」的字義嗎？若單字所有字義皆已習得，該單字將會被完全移除。`)) return;
+
+            wordsData = wordsData.map(w => {
+                if (mLevel === "all" || w.level.toString() === mLevel) {
+                    const remainingSenses = w.senses.filter(s => !s.known);
+                    return { ...w, senses: remainingSenses };
+                }
+                return w;
+            }).filter(w => w.senses.length > 0);
+
+            saveData();
+            applyFilters(false);
+            renderManageList();
+            alert("已成功清除已習得字義！");
+        }
+
+        function batchDeleteEntireWords() {
+            const mLevel = document.getElementById("manage-level-select").value;
+            const levelText = mLevel === "all" ? "所有級別" : `Level ${mLevel}`;
+            if (!confirm(`⚠️ 警告：這將會刪除 ${levelText} 中的所有單字！確定要繼續嗎？`)) return;
+
+            if (mLevel === "all") {
                 wordsData = [];
-                saveData();
-                applyFilters();
-                renderManageList();
-                closeManageModal();
+            } else {
+                wordsData = wordsData.filter(w => w.level.toString() !== mLevel);
             }
+
+            saveData();
+            applyFilters(true);
+            renderManageList();
+            alert(`已清空 ${levelText} 的所有單字。`);
         }
 
         function handleJsonFile(event) {
@@ -449,7 +569,7 @@
                 });
                 wordsData = Array.from(existingWordsMap.values());
                 saveData();
-                applyFilters();
+                applyFilters(false);
                 closeExpandModal();
                 alert(`成功擴充！目前字庫共有 ${wordsData.length} 個單字。`);
             } catch (err) {
@@ -464,14 +584,18 @@
             }
 
             const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType } = docx;
+            const expLevel = document.getElementById("export-level-select").value;
 
             const retainedData = wordsData.map(w => ({
                 ...w,
                 retained_senses: w.senses.filter(s => !s.known)
-            })).filter(w => w.retained_senses.length > 0);
+            })).filter(w => {
+                const matchL = (expLevel === "all" || w.level.toString() === expLevel);
+                return matchL && w.retained_senses.length > 0;
+            });
 
             if (retainedData.length === 0) {
-                alert("目前沒有未掌握的盲點單字！");
+                alert("目前沒有符合條件的未掌握盲點單字！");
                 return;
             }
 
@@ -534,7 +658,7 @@
             const doc = new Document({
                 sections: [{
                     children: [
-                        new Paragraph({ children: [new TextRun({ text: "學測 7000 單一字多義 ‧ 個人盲點特訓筆記本", bold: true, size: 36, color: "1E3A8A" })] }),
+                        new Paragraph({ children: [new TextRun({ text: `學測 7000 單一字多義 ‧ 個人盲點特訓筆記本 (${expLevel === 'all' ? '所有級別' : 'Level ' + expLevel})`, bold: true, size: 36, color: "1E3A8A" })] }),
                         new Paragraph({ children: [new TextRun({ text: "依據大考中心 108 課綱參考詞彙表 ｜ 預留閱讀劃記與抄寫筆記空間\n\n", size: 20, color: "64748B" })] }),
                         new Table({ rows: rows, width: { size: 100, type: WidthType.PERCENTAGE } })
                     ]
@@ -544,37 +668,40 @@
             const blob = await Packer.toBlob(doc);
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "ceec_vocab_notebook.docx";
+            link.download = `ceec_vocab_notebook_level_${expLevel}.docx`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
         function downloadTXT() {
+            const expLevel = document.getElementById("export-level-select").value;
             let lines = [];
             wordsData.forEach(w => {
+                if (expLevel !== "all" && w.level.toString() !== expLevel) return;
                 const unknownSenses = w.senses.filter(s => !s.known);
                 if (unknownSenses.length === 0) return;
                 const front = `${w.word} ${w.label || ''}`.trim();
-                const backHtml = unknownSenses.map(s => `${s.meaning} ${s.example}`).join("<br>");
+                const backHtml = unknownSenses.map(s => `[${s.pos}] ${s.meaning} - ${s.collocation} "${s.example}"`).join("<br>");
                 lines.push(`${front}\t${backHtml}`);
             });
 
             const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8;" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "anki_ceec_vocab.txt";
+            link.download = `anki_ceec_vocab_level_${expLevel}.txt`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
         function resetAllProgress() {
-            if (confirm("確定要重置所有勾選狀態嗎？")) {
+            if (confirm("確定要重置所有單字的勾選狀態嗎？")) {
                 wordsData.forEach(w => w.senses.forEach(s => s.known = false));
                 saveData();
                 renderCard();
                 closeExport();
+                alert("已重置所有勾選進度！");
             }
         }
 
@@ -583,11 +710,10 @@
             if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); nextWord(); }
             else if (e.code === "ArrowLeft") prevWord();
             else if (e.code === "ArrowRight") nextWord();
-            else if (e.key >= "1" && e.key >= "1" && e.key <= "9") toggleSenseDirect(parseInt(e.key) - 1);
+            else if (e.key >= "1" && e.key <= "9") toggleSenseDirect(parseInt(e.key) - 1);
         });
 
-        initTheme();
-        renderCard();
+        initApp();
     </script>
 </body>
 </html>
